@@ -1,0 +1,13 @@
+environment: production
+http_port: 8888
+grpc_port: 8889
+auth_secret: ######
+# Internal Database URL with SSL/TLS encryption enabled
+# database_uri: postgres://username:password@host:5432/database
+database_uri: postgres://postgres:postgres@localhost:5432/postgres
+# database_uri: postgres://postgres:postgres@dpg-cnlfl4vsc6pc73cdbbb0-a/amadytech
+# Redis URI
+# redis_uri: localhost:6379
+redis_uri: localhost:6379
+redis_password:
+redis_db: 0

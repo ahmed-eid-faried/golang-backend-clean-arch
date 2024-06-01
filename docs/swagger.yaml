@@ -1,0 +1,378 @@
+basePath: /api/v1
+definitions:
+  dto.Address:
+    properties:
+      city:
+        description: |-
+          City of the address
+          example: "San Francisco"
+        type: string
+      id_address:
+        description: |-
+          ID of the address
+          example: "12345"
+        type: string
+      id_user:
+        description: |-
+          User ID associated with the address
+          example: "67890"
+        type: string
+      lat:
+        description: |-
+          Latitude of the address
+          example: "37.7749"
+        type: string
+      long:
+        description: |-
+          Longitude of the address
+          example: "-122.4194"
+        type: string
+      name:
+        description: |-
+          Name of the address
+          example: "Home"
+        type: string
+      street:
+        description: |-
+          Street of the address
+          example: "Market Street"
+        type: string
+    type: object
+  dto.ChangePasswordReq:
+    properties:
+      new_password:
+        type: string
+      password:
+        type: string
+    required:
+    - new_password
+    - password
+    type: object
+  dto.CreateAddressReq:
+    properties:
+      city:
+        description: |-
+          City of the address
+          example: "San Francisco"
+        type: string
+      id_user:
+        description: |-
+          User ID associated with the address
+          example: "67890"
+        type: string
+      lat:
+        description: |-
+          Latitude of the address
+          example: "37.7749"
+        type: string
+      long:
+        description: |-
+          Longitude of the address
+          example: "-122.4194"
+        type: string
+      name:
+        description: |-
+          Name of the address
+          example: "Home"
+        type: string
+      street:
+        description: |-
+          Street of the address
+          example: "Market Street"
+        type: string
+    type: object
+  dto.DeleteAddressReq:
+    properties:
+      id:
+        description: |-
+          ID of the address
+          example: "12345"
+        type: string
+      id_user:
+        description: |-
+          User ID associated with the address
+          example: "67890"
+        type: string
+    type: object
+  dto.ListAddressRes:
+    properties:
+      addresses:
+        description: |-
+          List of addresses
+          example: [{"id_address":"12345","id_user":"67890","name":"Home","city":"San Francisco","street":"Market Street","lat":"37.7749","long":"-122.4194"}]
+        items:
+          $ref: '#/definitions/dto.Address'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/paging.Pagination'
+        description: Pagination info
+    type: object
+  dto.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginRes:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.User'
+    type: object
+  dto.RegisterReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterRes:
+    properties:
+      user:
+        $ref: '#/definitions/dto.User'
+    type: object
+  dto.UpdateAddressReq:
+    properties:
+      city:
+        description: |-
+          City of the address
+          example: "San Francisco"
+        type: string
+      id:
+        description: |-
+          ID of the address
+          example: "12345"
+        type: string
+      id_user:
+        description: |-
+          User ID associated with the address
+          example: "67890"
+        type: string
+      lat:
+        description: |-
+          Latitude of the address
+          example: "37.7749"
+        type: string
+      long:
+        description: |-
+          Longitude of the address
+          example: "-122.4194"
+        type: string
+      name:
+        description: |-
+          Name of the address
+          example: "Home"
+        type: string
+      street:
+        description: |-
+          Street of the address
+          example: "Market Street"
+        type: string
+    type: object
+  dto.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  paging.Pagination:
+    properties:
+      current_page:
+        type: integer
+      limit:
+        type: integer
+      skip:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+host: localhost:8888
+info:
+  contact:
+    email: quangdangfit@gmail.com
+    name: Quang Dang
+  description: API for user management
+  license:
+    name: MIT
+    url: https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: User API
+  version: "1.0"
+paths:
+  /address:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListAddressRes'
+      summary: Get list Address
+      tags:
+      - Address
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAddressReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: create Address
+      tags:
+      - Address
+  /address/{id}:
+    delete:
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteAddressReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Address
+      tags:
+      - Address
+    get:
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Get Address by id
+      tags:
+      - Address
+    put:
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAddressReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update Address
+      tags:
+      - Address
+  /auth/change-password:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: changes the password
+      tags:
+      - users
+  /auth/login:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginRes'
+      summary: Login
+      tags:
+      - users
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.User'
+      security:
+      - ApiKeyAuth: []
+      summary: get my profile
+      tags:
+      - users
+  /auth/register:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RegisterRes'
+      summary: Register new user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
