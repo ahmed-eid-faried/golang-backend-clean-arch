@@ -140,7 +140,7 @@ It uses the domain entities to perform CRUD operations.
   </tbody>
 </table>
 
-## 1- Define Domain Models (model):
+<!-- ## 1- Define Domain Models (model):
 
 <li>Create the core business entities.</li>
 <li>Example: model/address.go.</li>
@@ -156,9 +156,9 @@ Street string
 Lat string
 Long string
 }
-```
+``` -->
 
-## 2- Define Data Transfer Objects (dto):
+<!-- ## 2- Define Data Transfer Objects (dto):
 
 <li>Create structs to define the shape of data sent and received.</li>
 <li>Example: dto/address.go.</li>
@@ -174,9 +174,9 @@ type AddressDTO struct {
     Lat     string `json:"lat"`
     Long    string `json:"long"`
 }
-```
+``` -->
 
-## 3- Implement Repository Interfaces (repository):
+<!-- ## 3- Implement Repository Interfaces (repository):
 
 <li>Create interfaces and their implementations for data access.</li>
 <li>Example: repository/address.go.</li>
@@ -206,10 +206,9 @@ func (r *AddressRepository) FindByID(id string) (model.Address, error) {
     err := r.db.First(&address, "id = ?", id).Error
     return address, err
 }
-```
+``` -->
 
-## 4- Implement Business Logic (service):
-
+<!--## 4- Implement Business Logic (service):
 <li>Implement the core logic that uses the repositories.</li>
 <li>Example: service/address.go.</li>
 
@@ -244,11 +243,10 @@ func (s *AddressService) CreateAddress(addressDTO dto.AddressDTO) error {
     return s.addressRepo.Save(address)
 }
 
-```
+``` -->
+<!--## 5- Implement Handlers and Routes (port/http):
 
-## 5- Implement Handlers and Routes (port/http):
-
-<li>Create handlers to process incoming requests and route them to the appropriate service methods.</li>
+ <li>Create handlers to process incoming requests and route them to the appropriate service methods.</li>
 
 <li>Example: port/http/routes.go.</li>
 
@@ -285,7 +283,7 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 }
 ```
 
-<li>Example: port/http/handlers.go.</li>
+ <li>Example: port/http/handlers.go.</li>
 
 ```go
 package http
@@ -318,9 +316,8 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
     }
     c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
-```
-
-## 7- Implement Handlers and Routes (port/grpc):
+``` -->
+<!--## 7- Implement Handlers and Routes (port/grpc):
 
 <li>Create handlers to process incoming requests and route them to the appropriate service methods.</li>
 
@@ -392,4 +389,78 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
     }
     c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
-```
+``` -->
+<!--
+<h1>Clean Architecture Structure</h1>
+
+ <h2>1- Define Domain Models (model)</h2>
+ <ul>
+  <li>Create the core business entities.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/model/address.go">model/address.go</a>.</li>
+ </ul>
+
+ <h2>2- Define Data Transfer Objects (dto)</h2>
+ <ul>
+  <li>Create data transfer objects for input and output.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/dto/address.go">dto/address.go</a>.</li>
+ </ul>
+
+ <h2>3- Define Repository Interfaces (repository)</h2>
+ <ul>
+  <li>Create interfaces for data persistence.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/repository/address.go">repository/address.go</a>.</li>
+ </ul>
+
+ <h2>4- Define Services (service)</h2>
+ <ul>
+  <li>Implement the business logic.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/service/address.go">service/address.go</a>.</li>
+ </ul>
+
+ <h2>5- Define HTTP Handlers (port/http)</h2>
+ <ul>
+  <li>Create handlers for HTTP requests.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/http/handlers.go">port/http/handlers.go</a>.</li>
+ </ul>
+
+ <h2>6- Define HTTP Routes (port/http)</h2>
+ <ul>
+  <li>Define the routes for HTTP requests.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/http/routes.go">port/http/routes.go</a>.</li>
+ </ul>
+
+ <h2>7- Define gRPC Handlers (port/grpc)</h2>
+ <ul>
+  <li>Create handlers for gRPC services.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/handlers.go">port/grpc/handlers.go</a>.</li>
+ </ul>
+
+ <h2>8- Define gRPC Server (port/grpc)</h2>
+ <ul>
+  <li>Set up and configure the gRPC server.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/server.go">port/grpc/server.go</a>.</li>
+ </ul>
+
+ <h2>9- Define Protocol Buffers (proto)</h2>
+ <ul>
+  <li>Define the gRPC service and messages.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/proto/address.proto">proto/address.proto</a>.</li>
+ </ul>
+
+ <h2>10- HTTP Server Setup (server/http)</h2>
+ <ul>
+  <li>Configure and run the HTTP server.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/http/server.go">server/http/server.go</a>.</li>
+ </ul>
+
+ <h2>11- gRPC Server Setup (server/grpc)</h2>
+ <ul>
+  <li>Configure and run the gRPC server.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/grpc/server.go">server/grpc/server.go</a>.</li>
+ </ul>
+
+ <h2>12- Main Application Entry Point (cmd/api)</h2>
+ <ul>
+  <li>Set up the main entry point for the application.</li>
+  <li>Example: <a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/cmd/api/main.go">cmd/api/main.go</a>.</li>
+ </ul> -->
