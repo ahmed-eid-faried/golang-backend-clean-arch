@@ -1,7 +1,3 @@
-## Project Structure
-
-This section illustrates the Clean Architecture layers and their interactions.
-
 ### Clean Architecture Layers
 
 ![Go Backend Clean Architecture Diagram](clean_arch.png?raw=true)
@@ -19,6 +15,30 @@ graph TD
     root --> Interface_Adapters
     root --> Frameworks_and_Drivers
 ```
+
+       +-------------------+
+       |   Presentation    |       (port: http, grpc)
+       |-------------------|
+       |   Handlers, DTOs  |       (dto)
+       +--------^----------+
+                |
+       +--------|----------+
+       |    Application    |       (service)
+       |-------------------|
+       |  Business Logic   |
+       +--------^----------+
+                |
+       +--------|----------+
+       |      Domain       |       (model)
+       |-------------------|
+       |   Entities, Repos |
+       +--------^----------+
+                |
+       +--------|----------+
+       |   Infrastructure  |       (repository)
+       |-------------------|
+       | Database, APIs    |
+       +-------------------+
 
 ![Go Backend Clean Architecture Diagram](clean_arch_diagram.webp?raw=true)
 
@@ -93,6 +113,69 @@ This structured diagram provides a clear visual representation of the Clean Arch
   - [address.proto](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/proto/address/address.proto): Defines the Protocol Buffers (proto) schema for the address service and generates the corresponding gRPC code.
 
 </details>
+
+<h2>Project File Structure</h2>
+
+<p>This section provides an overview of the file structure and the purpose of each file in the project.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>File Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/model/address.go">internal/address/model/address.go</a></td>
+      <td>Defines the data structures for address entities.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/dto/address.go">internal/address/dto/address.go</a></td>
+      <td>Contains Data Transfer Objects (DTOs) for address operations.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/repository/address.go">internal/address/repository/address.go</a></td>
+      <td>Provides the repository interface and implementations for address persistence.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/service/address.go">internal/address/service/address.go</a></td>
+      <td>Implements the business logic for address-related operations.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/http/routes.go">internal/address/port/http/routes.go</a></td>
+      <td>Defines the HTTP routes for address endpoints.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/http/handlers.go">internal/address/port/http/handlers.go</a></td>
+      <td>Implements the HTTP handlers for address-related requests.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/server.go">internal/address/port/grpc/server.go</a></td>
+      <td>Handles initialization, registration, configuration, and starting of the gRPC server for address services.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/handlers.go">internal/address/port/grpc/handlers.go</a></td>
+      <td>Implements the gRPC service methods and business logic for address services.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/proto/address/address.proto">proto/address/address.proto</a></td>
+      <td>Defines the Protocol Buffers (proto) schema for the address service and generates the corresponding gRPC code.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/http/server.go">internal/server/http/server.go</a></td>
+      <td>Integrates address HTTP routes into the main HTTP server.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/grpc/server.go">internal/server/grpc/server.go</a></td>
+      <td>Integrates address gRPC services into the main gRPC server.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/cmd/api/main.go">cmd/api/main.go</a></td>
+      <td>Bootstraps and runs the application, including address models, gRPC server, and HTTP server.</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Visual Representation
 
