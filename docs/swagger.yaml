@@ -127,6 +127,18 @@ definitions:
       user:
         $ref: '#/definitions/dto.User'
     type: object
+  dto.RefreshTokenReq:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  dto.RefreshTokenRes:
+    properties:
+      access_token:
+        type: string
+    type: object
   dto.RegisterReq:
     properties:
       email:
@@ -191,6 +203,18 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.VerifyRequest:
+    properties:
+      email:
+        type: string
+      verify_code:
+        type: string
+    type: object
+  dto.VerifyResponse:
+    properties:
+      message:
+        type: string
+    type: object
   paging.Pagination:
     properties:
       current_page:
@@ -219,6 +243,27 @@ info:
 paths:
   /address:
     get:
+      parameters:
+      - description: id_user
+        in: header
+        name: id_user
+        required: true
+        type: string
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: page
+        in: path
+        name: page
+        required: true
+        type: string
+      - description: limit
+        in: path
+        name: limit
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -239,7 +284,11 @@ paths:
           $ref: '#/definitions/dto.CreateAddressReq'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Address'
       security:
       - ApiKeyAuth: []
       summary: create Address
@@ -248,11 +297,6 @@ paths:
   /address/{id}:
     delete:
       parameters:
-      - description: Address ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Body
         in: body
         name: _
@@ -261,7 +305,11 @@ paths:
           $ref: '#/definitions/dto.DeleteAddressReq'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Address'
       security:
       - ApiKeyAuth: []
       summary: Delete Address
@@ -276,17 +324,16 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Address'
       summary: Get Address by id
       tags:
       - Address
     put:
       parameters:
-      - description: Address ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Body
         in: body
         name: _
@@ -295,12 +342,37 @@ paths:
           $ref: '#/definitions/dto.UpdateAddressReq'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Address'
       security:
       - ApiKeyAuth: []
       summary: Update Address
       tags:
       - Address
+  /auth//verfiy-code:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verfiy Code for phone
+      tags:
+      - users
   /auth/change-password:
     put:
       parameters:
@@ -339,13 +411,20 @@ paths:
       - users
   /auth/me:
     get:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.User'
+            $ref: '#/definitions/dto.RefreshTokenRes'
       security:
       - ApiKeyAuth: []
       summary: get my profile
