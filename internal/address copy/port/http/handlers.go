@@ -37,9 +37,15 @@ func NewAddressHandler(
 //	@Tags		Address
 //	@Produce	json
 //	@Param		id	path	string	true	"Address ID"
-//	@Success	200	{object}	dto.Address
 //	@Router		/address/{id} [get]
 func (p *AddressHandler) GetAddressByID(c *gin.Context) {
+	var res dto.Address
+	cacheKey := c.Request.URL.RequestURI()
+	err := p.cache.Get(cacheKey, &res)
+	if err == nil {
+		response.JSON(c, http.StatusOK, res)
+		return
+	}
 
 	AddressId := c.Param("id")
 	Address, err := p.service.GetAddressByID(c, AddressId)
@@ -49,13 +55,6 @@ func (p *AddressHandler) GetAddressByID(c *gin.Context) {
 		return
 	}
 
-	var res dto.Address
-	cacheKey := c.Request.URL.RequestURI()
-	err2 := p.cache.Get(cacheKey, &res)
-	if err2 == nil {
-		response.JSON(c, http.StatusOK, res)
-		return
-	}
 	utils.Copy(&res, &Address)
 	response.JSON(c, http.StatusOK, res)
 	_ = p.cache.SetWithExpiration(cacheKey, res, config.AddressCachingTime.Abs())
@@ -66,7 +65,6 @@ func (p *AddressHandler) GetAddressByID(c *gin.Context) {
 //	@Summary	Get list Address
 //	@Tags		Address
 //	@Produce	json
-//	@Param		_	body	dto.ListAddressReq	true	"Body"
 //	@Success	200	{object}	dto.ListAddressRes
 //	@Router		/address [get]
 func (p *AddressHandler) ListAddresses(c *gin.Context) {
@@ -105,7 +103,6 @@ func (p *AddressHandler) ListAddresses(c *gin.Context) {
 //	@Produce	json
 //	@Security	ApiKeyAuth
 //	@Param		_	body	dto.CreateAddressReq	true	"Body"
-//	@Success	200	{object}	dto.Address
 //	@Router		/address [post]
 func (p *AddressHandler) CreateAddress(c *gin.Context) {
 	var req dto.CreateAddressReq
@@ -136,7 +133,6 @@ func (p *AddressHandler) CreateAddress(c *gin.Context) {
 //	@Security	ApiKeyAuth
 //	@Param		id	path	string					true	"Address ID"
 //	@Param		_	body	dto.UpdateAddressReq	true	"Body"
-//	@Success	200	{object}	dto.Address
 //	@Router		/address/{id} [put]
 func (p *AddressHandler) UpdateAddress(c *gin.Context) {
 	AddressId := c.Param("id")
@@ -168,7 +164,6 @@ func (p *AddressHandler) UpdateAddress(c *gin.Context) {
 //	@Security	ApiKeyAuth
 //	@Param		id	path	string					true	"Address ID"
 //	@Param		_	body	dto.DeleteAddressReq	true	"Body"
-//	@Success	200	{object}	dto.Address
 //	@Router		/address/{id} [Delete]
 func (p *AddressHandler) DeleteAddress(c *gin.Context) {
 	AddressId := c.Param("id")

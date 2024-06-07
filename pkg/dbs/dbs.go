@@ -24,6 +24,8 @@ type IDatabase interface {
 	FindOne(ctx context.Context, result any, opts ...FindOption) error
 	Find(ctx context.Context, result any, opts ...FindOption) error
 	Count(ctx context.Context, model any, total *int64, opts ...FindOption) error
+	QueryRow(ctx context.Context, query string, args ...interface{}) *gorm.DB
+	Exec(ctx context.Context, query string, args ...interface{}) error
 }
 
 type Query struct {
@@ -200,4 +202,18 @@ func (d *Database) applyOptions(opts ...FindOption) *gorm.DB {
 	}
 
 	return query
+}
+
+func (d *Database) QueryRow(ctx context.Context, query string, args ...interface{}) *gorm.DB {
+	ctx, cancel := context.WithTimeout(ctx, DatabaseTimeout)
+	defer cancel()
+
+	return d.db.WithContext(ctx).Raw(query, args...)
+}
+
+func (d *Database) Exec(ctx context.Context, query string, args ...interface{}) error {
+	ctx, cancel := context.WithTimeout(ctx, DatabaseTimeout)
+	defer cancel()
+
+	return d.db.WithContext(ctx).Exec(query, args...).Error
 }

@@ -4,6 +4,27 @@
 // 	"time"
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 // 	"github.com/google/uuid"
 // 	"gorm.io/gorm"
@@ -59,13 +80,15 @@ const (
 
 // User represents a user in the system
 type User struct {
-	ID        string     `json:"id" gorm:"unique;not null;index;primary_key"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at" gorm:"index"`
-	Email     string     `json:"email" gorm:"unique;not null;index:idx_user_email"`
-	Password  string     `json:"password"`
-	Role      UserRole   `json:"role"`
+	ID         string     `json:"id" gorm:"unique;not null;index;primary_key"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
+	DeletedAt  *time.Time `json:"deleted_at" gorm:"index"`
+	Email      string     `json:"email" gorm:"unique;not null;index:idx_user_email"`
+	Password   string     `json:"password"`
+	Role       UserRole   `json:"role"`
+	VerifyCode string     `json:"verify_code"`
+	Approve    bool       `json:"approve"`
 }
 
 // BeforeCreate is a hook that is called before creating a new user

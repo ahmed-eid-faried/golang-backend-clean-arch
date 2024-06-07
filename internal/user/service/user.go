@@ -21,6 +21,7 @@ type IUserService interface {
 	Register(ctx context.Context, req *dto.RegisterReq) (*model.User, error)
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
 	RefreshToken(ctx context.Context, userID string) (string, error)
+	VerifyUser(ctx context.Context, request dto.VerifyRequest) (dto.VerifyResponse, error)
 	ChangePassword(ctx context.Context, id string, req *dto.ChangePasswordReq) error
 }
 
@@ -126,4 +127,22 @@ func (s *UserService) ChangePassword(ctx context.Context, id string, req *dto.Ch
 	}
 
 	return nil
+}
+
+func (s *UserService) VerifyUser(ctx context.Context, request dto.VerifyRequest) (dto.VerifyResponse, error) {
+	user, err := s.repo.FindByEmailAndVerifyCode(ctx, request.Email, request.VerifyCode)
+	if err != nil {
+		return dto.VerifyResponse{Message: "Verification failed"}, err
+	}
+
+	if user == nil {
+		return dto.VerifyResponse{Message: "Verify code not correct"}, errors.New("verify code not correct")
+	}
+
+	user.Approve = true
+	if err := s.repo.UpdateUser(ctx, user); err != nil {
+		return dto.VerifyResponse{Message: "Failed to update user"}, err
+	}
+
+	return dto.VerifyResponse{Message: "Verification successful"}, nil
 }

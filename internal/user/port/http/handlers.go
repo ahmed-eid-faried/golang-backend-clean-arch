@@ -108,6 +108,15 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 	response.JSON(c, http.StatusOK, res)
 }
 
+// GetMe godoc
+//
+//	@Summary	get my profile
+//	@Tags		users
+//	@Security	ApiKeyAuth
+//	@Produce	json
+//	@Param		_	body		dto.RefreshTokenReq	true	"Body"
+//	@Success	200	{object}	dto.RefreshTokenRes
+//	@Router		/auth/me [get]
 func (h *UserHandler) RefreshToken(c *gin.Context) {
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -152,4 +161,30 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 	response.JSON(c, http.StatusOK, nil)
+}
+
+// VerfiyCode godoc
+//
+//	@Summary	Verfiy Code for phone
+//	@Tags		users
+//	@Security	ApiKeyAuth
+//	@Produce	json
+//	@Param		_	body	dto.VerifyRequest	true	"Body"
+//	@Success	200	{object}	dto.VerifyResponse
+//	@Router		/auth//verfiy-code [put]
+func (h *UserHandler) VerfiyCode(c *gin.Context) {
+	var req dto.VerifyRequest
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		logger.Error("Failed to get body", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	resp, err := h.service.VerifyUser(c, req)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+	response.JSON(c, http.StatusOK, resp)
 }

@@ -43,3 +43,15 @@ type ChangePasswordReq struct {
 	Password    string `json:"password" validate:"required,password"`
 	NewPassword string `json:"new_password" validate:"required,password"`
 }
+
+//***************************************************************************\\
+//***************************************************************************\\
+
+type VerifyRequest struct {
+	Email      string `json:"email"`
+	VerifyCode string `json:"verify_code"`
+}
+
+type VerifyResponse struct {
+	Message string `json:"message"`
+}

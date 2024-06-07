@@ -3,7 +3,7 @@ syntax = "proto3";
 package address;
 
 option go_package = "main/proto";
-// protoc --go_out=. --go-grpc_out=. address.proto
+// protoc --go_out=. --go-grpc_out=. proto/address/address.proto
 // protoc --go_out=proto/gen/go/address --go-grpc_out=proto/gen/go/address proto/address/address.proto
 // protoc --go_out=(path for output pb.go) --go-grpc_out=(path for output grpc_pb.go) (path for input file address.proto)
 

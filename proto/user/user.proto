@@ -3,14 +3,15 @@ syntax = "proto3";
 package user;
 
 option go_package = "./;user";
-
+// protoc --go_out=. --go-grpc_out=. proto/user/user.proto
 service UserService {
   rpc Register(RegisterReq) returns (RegisterRes);
   rpc Login(LoginReq) returns (LoginRes);
   rpc GetMe(GetMeReq) returns (GetMeRes);
   rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes);
+  rpc VerifyUser(VerifyRequest) returns (VerifyResponse);
   rpc ChangePassword(ChangePasswordReq) returns (ChangePasswordRes);
-}
+  }
 
 // =================================================================
 
@@ -59,4 +60,14 @@ message ChangePasswordReq {
 }
 
 message ChangePasswordRes {}
+// =================================================================
+
+message VerifyRequest {
+  string email       = 1;
+  string verify_code = 2;
+}
+
+message VerifyResponse {
+  string message = 1;
+}
 // =================================================================

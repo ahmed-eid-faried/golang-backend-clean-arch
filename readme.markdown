@@ -96,11 +96,11 @@ This structured diagram provides a clear visual representation of the Clean Arch
     - **grpc**
       - [server.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/server.go): Handles initialization, registration, configuration, and starting of the gRPC server for address services.
       - [handlers.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/address/port/grpc/handlers.go): Implements the gRPC service methods and business logic for address services.
-- **server**
-  - **http**
-    - [server.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/http/server.go): Integrates address HTTP routes into the main HTTP server.
-  - **grpc**
-    - [server.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/grpc/server.go): Integrates address gRPC services into the main gRPC server.
+  - **server**
+    - **http**
+      - [server.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/http/server.go): Integrates address HTTP routes into the main HTTP server.
+    - **grpc**
+      - [server.go](https://github.com/ahmed-eid-faried/golang-backend-clean-arch/blob/main/internal/server/grpc/server.go): Integrates address gRPC services into the main gRPC server.
 
 **cmd**
 

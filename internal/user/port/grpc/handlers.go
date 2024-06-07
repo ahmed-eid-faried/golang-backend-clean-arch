@@ -108,3 +108,18 @@ func (h *UserHandler) ChangePassword(ctx context.Context, req *pb.ChangePassword
 
 	return &pb.ChangePasswordRes{}, nil
 }
+
+func (h *UserHandler) VerfiyCode(ctx context.Context, req *pb.VerifyRequest) (*pb.VerifyResponse, error) {
+
+	_, err := h.service.VerifyUser(ctx, dto.VerifyRequest{
+		Email:      req.Email,
+		VerifyCode: req.VerifyCode})
+
+	if err != nil {
+		logger.Error("Failed to register ", err)
+		return nil, err
+
+	}
+
+	return &pb.VerifyResponse{}, nil
+}
