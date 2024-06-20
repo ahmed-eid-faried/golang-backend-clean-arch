@@ -21,8 +21,12 @@ type IUserService interface {
 	Register(ctx context.Context, req *dto.RegisterReq) (*model.User, error)
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
 	RefreshToken(ctx context.Context, userID string) (string, error)
-	VerifyUser(ctx context.Context, request dto.VerifyRequest) (dto.VerifyResponse, error)
-	ChangePassword(ctx context.Context, id string, req *dto.ChangePasswordReq) error
+	VerifyEmail(ctx context.Context, request dto.VerifyEmailRequest) (dto.VerifyResponse, error)
+	VerifyPhoneNumber(ctx context.Context, request dto.VerifyPhoneNumberRequest) (dto.VerifyResponse, error)
+	ResendVerfiyCodePhone(ctx context.Context, request dto.ResendVerifyPhoneNumberRequest) (dto.VerifyResponse, error)
+	ResendVerfiyCodeEmail(ctx context.Context, request dto.ResendVerifyEmailRequest) (dto.VerifyResponse, error)
+
+	UpdateUser(ctx context.Context, id string, req *dto.UpdateUserReq) error
 }
 
 type UserService struct {
@@ -71,6 +75,7 @@ func (s *UserService) Register(ctx context.Context, req *dto.RegisterReq) (*mode
 
 	var user model.User
 	utils.Copy(&user, &req)
+	user.BeforeUpdate()
 	err := s.repo.Create(ctx, &user)
 	if err != nil {
 		logger.Errorf("Register.Create fail, email: %s, error: %s", req.Email, err)
@@ -105,13 +110,13 @@ func (s *UserService) RefreshToken(ctx context.Context, userID string) (string, 
 	return accessToken, nil
 }
 
-func (s *UserService) ChangePassword(ctx context.Context, id string, req *dto.ChangePasswordReq) error {
+func (s *UserService) UpdateUser(ctx context.Context, id string, req *dto.UpdateUserReq) error {
 	if err := s.validator.ValidateStruct(req); err != nil {
 		return err
 	}
 	user, err := s.repo.GetUserByID(ctx, id)
 	if err != nil {
-		logger.Errorf("ChangePassword.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("UpdateUser.GetUserByID fail, id: %s, error: %s", id, err)
 		return err
 	}
 
@@ -122,15 +127,15 @@ func (s *UserService) ChangePassword(ctx context.Context, id string, req *dto.Ch
 	user.Password = utils.HashAndSalt([]byte(req.NewPassword))
 	err = s.repo.Update(ctx, user)
 	if err != nil {
-		logger.Errorf("ChangePassword.Update fail, id: %s, error: %s", id, err)
+		logger.Errorf("UpdateUser.Update fail, id: %s, error: %s", id, err)
 		return err
 	}
 
 	return nil
 }
 
-func (s *UserService) VerifyUser(ctx context.Context, request dto.VerifyRequest) (dto.VerifyResponse, error) {
-	user, err := s.repo.FindByEmailAndVerifyCode(ctx, request.Email, request.VerifyCode)
+func (s *UserService) VerifyEmail(ctx context.Context, request dto.VerifyEmailRequest) (dto.VerifyResponse, error) {
+	user, err := s.repo.FindByEmailAndVerifyCode(ctx, request.Email, request.VerifyCodeEmail)
 	if err != nil {
 		return dto.VerifyResponse{Message: "Verification failed"}, err
 	}
@@ -139,10 +144,66 @@ func (s *UserService) VerifyUser(ctx context.Context, request dto.VerifyRequest)
 		return dto.VerifyResponse{Message: "Verify code not correct"}, errors.New("verify code not correct")
 	}
 
-	user.Approve = true
-	if err := s.repo.UpdateUser(ctx, user); err != nil {
+	user.ApproveEmail = true
+	if err := s.repo.Update(ctx, user); err != nil {
 		return dto.VerifyResponse{Message: "Failed to update user"}, err
 	}
 
 	return dto.VerifyResponse{Message: "Verification successful"}, nil
+}
+
+func (s *UserService) VerifyPhoneNumber(ctx context.Context, request dto.VerifyPhoneNumberRequest) (dto.VerifyResponse, error) {
+	user, err := s.repo.FindByPhoneAndVerifyCode(ctx, request.PhoneNumber, request.VerifyCodePhoneNumber)
+	if err != nil {
+		return dto.VerifyResponse{Message: "Verification failed"}, err
+	}
+
+	if user == nil {
+		return dto.VerifyResponse{Message: "Verify code not correct"}, errors.New("verify code not correct")
+	}
+
+	user.ApprovePhoneNumber = true
+	if err := s.repo.Update(ctx, user); err != nil {
+		return dto.VerifyResponse{Message: "Failed to update user"}, err
+	}
+
+	return dto.VerifyResponse{Message: "Verification successful"}, nil
+}
+
+func (s *UserService) ResendVerfiyCodePhone(ctx context.Context, request dto.ResendVerifyPhoneNumberRequest) (dto.VerifyResponse, error) {
+
+	user, err := s.repo.FindByPhone(ctx, request.PhoneNumber)
+	if err != nil {
+		return dto.VerifyResponse{Message: "Resend Verification failed"}, err
+	}
+
+	if user == nil {
+		return dto.VerifyResponse{Message: "Resend Verify code not correct"}, errors.New("verify code not correct")
+	}
+	// sendVerificationCodes sends the verification codes to the user's phone and email
+	user.BeforeUpdateVerificationPhone()
+	if err := s.repo.Update(ctx, user); err != nil {
+		return dto.VerifyResponse{Message: "Failed to Resend user"}, err
+	}
+
+	return dto.VerifyResponse{Message: "Resend Verify code is successful"}, nil
+}
+
+func (s *UserService) ResendVerfiyCodeEmail(ctx context.Context, request dto.ResendVerifyEmailRequest) (dto.VerifyResponse, error) {
+
+	user, err := s.repo.FindByEmail(ctx, request.Email)
+	if err != nil {
+		return dto.VerifyResponse{Message: "Resend Verification failed"}, err
+	}
+
+	if user == nil {
+		return dto.VerifyResponse{Message: "Resend Verify code not correct"}, errors.New("verify code not correct")
+	}
+	// sendVerificationCodes sends the verification codes to the user's phone and email
+	user.BeforeUpdateVerificationEmail()
+	if err := s.repo.Update(ctx, user); err != nil {
+		return dto.VerifyResponse{Message: "Failed to Resend Resend"}, err
+	}
+
+	return dto.VerifyResponse{Message: "Resend Verify code is successful"}, nil
 }

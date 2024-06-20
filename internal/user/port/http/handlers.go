@@ -23,6 +23,8 @@ func NewUserHandler(service service.IUserService) *UserHandler {
 	}
 }
 
+// Login , Register, GetMe, RefreshToken, UpdateUser, VerfiyCode FOR PHONE
+
 // Login godoc
 //
 //	@Summary	Login
@@ -116,7 +118,7 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 //	@Produce	json
 //	@Param		_	body		dto.RefreshTokenReq	true	"Body"
 //	@Success	200	{object}	dto.RefreshTokenRes
-//	@Router		/auth/me [get]
+//	@Router		/auth/refresh-token [get]
 func (h *UserHandler) RefreshToken(c *gin.Context) {
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -137,16 +139,17 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	response.JSON(c, http.StatusOK, res)
 }
 
-// ChangePassword godoc
+// UpdateUser godoc
 //
 //	@Summary	changes the password
 //	@Tags		users
 //	@Security	ApiKeyAuth
 //	@Produce	json
-//	@Param		_	body	dto.ChangePasswordReq	true	"Body"
-//	@Router		/auth/change-password [put]
-func (h *UserHandler) ChangePassword(c *gin.Context) {
-	var req dto.ChangePasswordReq
+//	@Param		_	body	dto.UpdateUserReq	true	"Body"
+//	@Success	200	{object}	dto.UpdateUserRes
+//	@Router		/auth/update-user [put]
+func (h *UserHandler) UpdateUser(c *gin.Context) {
+	var req dto.UpdateUserReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
 		logger.Error("Failed to get body", err)
 		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
@@ -154,7 +157,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 	}
 
 	userID := c.GetString("userId")
-	err := h.service.ChangePassword(c, userID, &req)
+	err := h.service.UpdateUser(c, userID, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
@@ -163,24 +166,102 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 	response.JSON(c, http.StatusOK, nil)
 }
 
-// VerfiyCode godoc
+// VerfiyCodeEmail godoc
 //
-//	@Summary	Verfiy Code for phone
+//	@Summary	Verfiy Code for Email
 //	@Tags		users
 //	@Security	ApiKeyAuth
 //	@Produce	json
-//	@Param		_	body	dto.VerifyRequest	true	"Body"
+//	@Param		_	body	dto.VerifyEmailRequest	true	"Body"
 //	@Success	200	{object}	dto.VerifyResponse
-//	@Router		/auth//verfiy-code [put]
-func (h *UserHandler) VerfiyCode(c *gin.Context) {
-	var req dto.VerifyRequest
+//	@Router		/auth/verfiy-code-email [put]
+func (h *UserHandler) VerfiyCodeEmail(c *gin.Context) {
+	var req dto.VerifyEmailRequest
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
 		logger.Error("Failed to get body", err)
 		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
 		return
 	}
 
-	resp, err := h.service.VerifyUser(c, req)
+	resp, err := h.service.VerifyEmail(c, req)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+	response.JSON(c, http.StatusOK, resp)
+}
+
+// VerfiyCodePhoneNumber godoc
+//
+//	@Summary	Verfiy Code for PhoneNumber
+//	@Tags		users
+//	@Security	ApiKeyAuth
+//	@Produce	json
+//	@Param		_	body	dto.VerifyPhoneNumberRequest	true	"Body"
+//	@Success	200	{object}	dto.VerifyResponse
+//	@Router		/auth/verfiy-code-phone-number [put]
+func (h *UserHandler) VerfiyCodePhoneNumber(c *gin.Context) {
+	var req dto.VerifyPhoneNumberRequest
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		logger.Error("Failed to get body", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	resp, err := h.service.VerifyPhoneNumber(c, req)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+	response.JSON(c, http.StatusOK, resp)
+}
+
+// VerfiyCodePhoneNumber godoc
+//
+//	@Summary	Verfiy Code for PhoneNumber
+//	@Tags		users
+//	@Security	ApiKeyAuth
+//	@Produce	json
+//	@Param		_	body	dto.ResendVerifyPhoneNumberRequest	true	"Body"
+//	@Success	200	{object}	dto.VerifyResponse
+//	@Router		/auth/resend-verfiy-code-phone-number [put]
+func (h *UserHandler) VerfiyCodePhoneNumberResend(c *gin.Context) {
+	var req dto.ResendVerifyPhoneNumberRequest
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		logger.Error("Failed to get body", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	resp, err := h.service.ResendVerfiyCodePhone(c, req)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+	response.JSON(c, http.StatusOK, resp)
+}
+
+// VerfiyCodeEmail godoc
+//
+//	@Summary	Verfiy Code for Email
+//	@Tags		users
+//	@Security	ApiKeyAuth
+//	@Produce	json
+//	@Param		_	body	dto.ResendVerifyEmailRequest	true	"Body"
+//	@Success	200	{object}	dto.VerifyResponse
+//	@Router		/auth/resend-verfiy-code-email [put]
+func (h *UserHandler) VerfiyCodeEmailResend(c *gin.Context) {
+	var req dto.ResendVerifyEmailRequest
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		logger.Error("Failed to get body", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	resp, err := h.service.ResendVerfiyCodeEmail(c, req)
 	if err != nil {
 		logger.Error(err.Error())
 		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")

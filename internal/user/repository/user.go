@@ -17,7 +17,11 @@ type IUserRepository interface {
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 	FindByEmailAndVerifyCode(ctx context.Context, email, verifyCode string) (*model.User, error)
-	UpdateUser(ctx context.Context, user *model.User) error
+	FindByPhoneAndVerifyCode(ctx context.Context, PhoneNumber, verifyCode string) (*model.User, error)
+	FindByPhone(ctx context.Context, PhoneNumber string) (*model.User, error)
+	FindByEmail(ctx context.Context, PhoneNumber string) (*model.User, error)
+	UpdatePhone(ctx context.Context, user *model.User) error
+	UpdateEmail(ctx context.Context, user *model.User) error
 }
 
 type UserRepo struct {
@@ -57,7 +61,7 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*model.Use
 }
 func (r *UserRepo) FindByEmailAndVerifyCode(ctx context.Context, email, verifyCode string) (*model.User, error) {
 	var user model.User
-	query := "SELECT id, email, verify_code, approve FROM users WHERE email = ? AND verify_code = ?"
+	query := "SELECT id, email, verify_code_email, approve FROM users WHERE email = ? AND verify_code_email = ?"
 
 	result := r.db.GetDB().WithContext(ctx).Raw(query, email, verifyCode).Scan(&user)
 	if result.Error != nil {
@@ -68,9 +72,55 @@ func (r *UserRepo) FindByEmailAndVerifyCode(ctx context.Context, email, verifyCo
 	}
 	return &user, nil
 }
+func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*model.User, error) {
+	var user model.User
+	query := "SELECT id, email, verify_code_email, approve FROM users WHERE email = ?"
 
-func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) error {
+	result := r.db.GetDB().WithContext(ctx).Raw(query, email).Scan(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}
+func (r *UserRepo) UpdateEmail(ctx context.Context, user *model.User) error {
 	query := "UPDATE users SET approve = ? WHERE email = ?"
-	err := r.db.Exec(ctx, query, user.Approve, user.Email)
+	err := r.db.Exec(ctx, query, user.ApproveEmail, user.Email)
+	return err
+}
+func (r *UserRepo) FindByPhoneAndVerifyCode(ctx context.Context, PhoneNumber, verifyCode string) (*model.User, error) {
+	var user model.User
+	query := "SELECT id, phone_number, verify_code_phone_number, approve FROM users WHERE phone_number = ? AND verify_code_phone_number = ?"
+
+	result := r.db.GetDB().WithContext(ctx).Raw(query, PhoneNumber, verifyCode).Scan(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (r *UserRepo) FindByPhone(ctx context.Context, PhoneNumber string) (*model.User, error) {
+	var user model.User
+	query := "SELECT id, phone_number, verify_code_phone_number, approve FROM users WHERE phone_number = ? "
+
+	result := r.db.GetDB().WithContext(ctx).Raw(query, PhoneNumber).Scan(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
+func (r *UserRepo) UpdatePhone(ctx context.Context, user *model.User) error {
+	query := "UPDATE users SET approve = ? WHERE phone_number = ?"
+	err := r.db.Exec(ctx, query, user.ApprovePhoneNumber, user.PhoneNumber)
 	return err
 }

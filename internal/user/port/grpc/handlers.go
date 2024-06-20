@@ -91,13 +91,13 @@ func (h *UserHandler) RefreshToken(ctx context.Context, req *pb.RefreshTokenReq)
 	return &res, nil
 }
 
-func (h *UserHandler) ChangePassword(ctx context.Context, req *pb.ChangePasswordReq) (*pb.ChangePasswordRes, error) {
+func (h *UserHandler) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserRes, error) {
 	userID, _ := ctx.Value("userId").(string)
 	if userID == "" {
 		return nil, errors.New("unauthorized")
 	}
 
-	err := h.service.ChangePassword(ctx, userID, &dto.ChangePasswordReq{
+	err := h.service.UpdateUser(ctx, userID, &dto.UpdateUserReq{
 		Password:    req.Password,
 		NewPassword: req.NewPassword,
 	})
@@ -106,14 +106,58 @@ func (h *UserHandler) ChangePassword(ctx context.Context, req *pb.ChangePassword
 		return nil, err
 	}
 
-	return &pb.ChangePasswordRes{}, nil
+	return &pb.UpdateUserRes{}, nil
 }
 
-func (h *UserHandler) VerfiyCode(ctx context.Context, req *pb.VerifyRequest) (*pb.VerifyResponse, error) {
+func (h *UserHandler) VerfiyCodePhoneNumber(ctx context.Context, req *pb.VerifyPhoneNumberRequest) (*pb.VerifyResponse, error) {
 
-	_, err := h.service.VerifyUser(ctx, dto.VerifyRequest{
-		Email:      req.Email,
-		VerifyCode: req.VerifyCode})
+	_, err := h.service.VerifyPhoneNumber(ctx, dto.VerifyPhoneNumberRequest{
+		PhoneNumber:           req.PhoneNumber,
+		VerifyCodePhoneNumber: req.VerifyCodePhoneNumber})
+
+	if err != nil {
+		logger.Error("Failed to register ", err)
+		return nil, err
+
+	}
+
+	return &pb.VerifyResponse{}, nil
+}
+func (h *UserHandler) VerfiyCodeEmail(ctx context.Context, req *pb.VerifyEmailRequest) (*pb.VerifyResponse, error) {
+
+	_, err := h.service.VerifyPhoneNumber(ctx, dto.VerifyPhoneNumberRequest{
+		PhoneNumber:           req.Email,
+		VerifyCodePhoneNumber: req.VerifyCodeEmail})
+
+	if err != nil {
+		logger.Error("Failed to register ", err)
+		return nil, err
+
+	}
+
+	return &pb.VerifyResponse{}, nil
+}
+
+func (h *UserHandler) VerfiyCodePhoneNumberResend(ctx context.Context, req *pb.ResendVerifyPhoneNumberRequest) (*pb.VerifyResponse, error) {
+
+	_, err := h.service.VerifyPhoneNumber(ctx, dto.VerifyPhoneNumberRequest{
+		PhoneNumber:           req.PhoneNumber,
+		VerifyCodePhoneNumber: req.PhoneNumber})
+
+	if err != nil {
+		logger.Error("Failed to register ", err)
+		return nil, err
+
+	}
+
+	return &pb.VerifyResponse{}, nil
+}
+
+func (h *UserHandler) VerfiyCodeEmailResend(ctx context.Context, req *pb.ResendVerifyEmailRequest) (*pb.VerifyResponse, error) {
+
+	_, err := h.service.VerifyPhoneNumber(ctx, dto.VerifyPhoneNumberRequest{
+		PhoneNumber:           req.Email,
+		VerifyCodePhoneNumber: req.Email})
 
 	if err != nil {
 		logger.Error("Failed to register ", err)

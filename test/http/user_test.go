@@ -235,68 +235,68 @@ func TestUserAPI_RefreshTokenUserNotFound(t *testing.T) {
 // Change Password
 // =================================================================================================
 
-func TestUserAPI_ChangePasswordSuccess(t *testing.T) {
+func TestUserAPI_UpdateUserSuccess(t *testing.T) {
 	defer cleanData()
 
-	user := model.User{Email: "changepassword1@gmail.com", Password: "123456"}
+	user := model.User{Email: "UpdateUser1@gmail.com", Password: "123456"}
 	dbTest.Create(context.Background(), &user)
 
 	token := jtoken.GenerateAccessToken(map[string]interface{}{
 		"id": user.ID,
 	})
 
-	req := &dto.ChangePasswordReq{
+	req := &dto.UpdateUserReq{
 		Password:    "123456",
 		NewPassword: "new123456",
 	}
 
-	writer := makeRequest("PUT", "/auth/change-password", req, token)
+	writer := makeRequest("PUT", "/auth/update-user", req, token)
 	assert.Equal(t, http.StatusOK, writer.Code)
 }
 
-func TestUserAPI_ChangePasswordUnauthorized(t *testing.T) {
-	req := &dto.ChangePasswordReq{
+func TestUserAPI_UpdateUserUnauthorized(t *testing.T) {
+	req := &dto.UpdateUserReq{
 		Password:    "123456",
 		NewPassword: "new123456",
 	}
 
-	writer := makeRequest("PUT", "/auth/change-password", req, "")
+	writer := makeRequest("PUT", "/auth/update-user", req, "")
 	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
 
-func TestUserAPI_ChangePasswordIsWrong(t *testing.T) {
-	req := &dto.ChangePasswordReq{
+func TestUserAPI_UpdateUserIsWrong(t *testing.T) {
+	req := &dto.UpdateUserReq{
 		Password:    "wrong123456",
 		NewPassword: "new123456",
 	}
 
-	writer := makeRequest("PUT", "/auth/change-password", req, accessToken())
+	writer := makeRequest("PUT", "/auth/update-user", req, accessToken())
 	var response map[string]map[string]string
 	_ = json.Unmarshal(writer.Body.Bytes(), &response)
 	assert.Equal(t, http.StatusInternalServerError, writer.Code)
 	assert.Equal(t, "Something went wrong", response["error"]["message"])
 }
 
-func TestUserAPI_ChangePasswordInvalidNewPassword(t *testing.T) {
-	req := &dto.ChangePasswordReq{
+func TestUserAPI_UpdateUserInvalidNewPassword(t *testing.T) {
+	req := &dto.UpdateUserReq{
 		Password:    "test123456",
 		NewPassword: "new",
 	}
 
-	writer := makeRequest("PUT", "/auth/change-password", req, accessToken())
+	writer := makeRequest("PUT", "/auth/update-user", req, accessToken())
 	var response map[string]map[string]string
 	_ = json.Unmarshal(writer.Body.Bytes(), &response)
 	assert.Equal(t, http.StatusInternalServerError, writer.Code)
 	assert.Equal(t, "Something went wrong", response["error"]["message"])
 }
 
-func TestUserAPI_ChangePasswordInvalidFieldType(t *testing.T) {
+func TestUserAPI_UpdateUserInvalidFieldType(t *testing.T) {
 	req := map[string]interface{}{
 		"password":     1,
 		"new_password": "new",
 	}
 
-	writer := makeRequest("PUT", "/auth/change-password", req, accessToken())
+	writer := makeRequest("PUT", "/auth/update-user", req, accessToken())
 	var response map[string]map[string]string
 	_ = json.Unmarshal(writer.Body.Bytes(), &response)
 	assert.Equal(t, http.StatusBadRequest, writer.Code)

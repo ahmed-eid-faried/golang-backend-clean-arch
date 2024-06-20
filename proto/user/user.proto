@@ -10,8 +10,45 @@ service UserService {
   rpc GetMe(GetMeReq) returns (GetMeRes);
   rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes);
   rpc VerifyUser(VerifyRequest) returns (VerifyResponse);
-  rpc ChangePassword(ChangePasswordReq) returns (ChangePasswordRes);
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserRes);
+
+  // ///////////////////////////////////////////////////
+  rpc VerfiyCodeEmail(VerifyEmailRequest) returns (VerifyResponse);
+  rpc VerfiyCodePhoneNumber(VerifyPhoneNumberRequest) returns (VerifyResponse);
+  rpc VerfiyCodePhoneNumberResend(ResendVerifyPhoneNumberRequest) returns (VerifyResponse);
+  rpc VerfiyCodeEmailResend(ResendVerifyEmailRequest) returns (VerifyResponse);
+  
+  // ///////////////////////////////////////////////////
   }
+//*******************************************************************\\
+//*******************************************************************\\
+
+message VerifyEmailRequest {
+  string email      = 1;
+  string verifyCodeEmail = 2;
+}
+message ResendVerifyEmailRequest {
+  string email      = 1;
+}
+//*******************************************************************\\
+
+// message VerifyResponse {
+//   string Message      = 1;
+// }
+//*******************************************************************\\
+
+message VerifyPhoneNumberRequest{
+  string phoneNumber      = 1;
+  string verifyCodePhoneNumber      = 2;
+
+}
+
+message ResendVerifyPhoneNumberRequest{
+  string phoneNumber      = 1;
+
+}
+//*******************************************************************\\
+//*******************************************************************\\
 
 // =================================================================
 
@@ -54,12 +91,12 @@ message RefreshTokenReq {}
 message RefreshTokenRes { string access_token = 1; }
 // =================================================================
 
-message ChangePasswordReq {
+message UpdateUserReq {
   string password     = 1;
   string new_password = 2;
 }
 
-message ChangePasswordRes {}
+message UpdateUserRes {}
 // =================================================================
 
 message VerifyRequest {

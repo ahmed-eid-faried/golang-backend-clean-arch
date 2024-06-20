@@ -38,16 +38,6 @@ definitions:
           example: "Market Street"
         type: string
     type: object
-  dto.ChangePasswordReq:
-    properties:
-      new_password:
-        type: string
-      password:
-        type: string
-    required:
-    - new_password
-    - password
-    type: object
   dto.CreateAddressReq:
     properties:
       city:
@@ -154,6 +144,16 @@ definitions:
       user:
         $ref: '#/definitions/dto.User'
     type: object
+  dto.ResendVerifyEmailRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  dto.ResendVerifyPhoneNumberRequest:
+    properties:
+      phone_number:
+        type: string
+    type: object
   dto.UpdateAddressReq:
     properties:
       city:
@@ -192,6 +192,21 @@ definitions:
           example: "Market Street"
         type: string
     type: object
+  dto.UpdateUserReq:
+    properties:
+      new_password:
+        type: string
+      password:
+        type: string
+    required:
+    - new_password
+    - password
+    type: object
+  dto.UpdateUserRes:
+    properties:
+      message:
+        type: string
+    type: object
   dto.User:
     properties:
       created_at:
@@ -203,11 +218,18 @@ definitions:
       updated_at:
         type: string
     type: object
-  dto.VerifyRequest:
+  dto.VerifyEmailRequest:
     properties:
       email:
         type: string
-      verify_code:
+      verify_code_email:
+        type: string
+    type: object
+  dto.VerifyPhoneNumberRequest:
+    properties:
+      phone_number:
+        type: string
+      verify_code_phone_number:
         type: string
     type: object
   dto.VerifyResponse:
@@ -352,44 +374,6 @@ paths:
       summary: Update Address
       tags:
       - Address
-  /auth//verfiy-code:
-    put:
-      parameters:
-      - description: Body
-        in: body
-        name: _
-        required: true
-        schema:
-          $ref: '#/definitions/dto.VerifyRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.VerifyResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Verfiy Code for phone
-      tags:
-      - users
-  /auth/change-password:
-    put:
-      parameters:
-      - description: Body
-        in: body
-        name: _
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ChangePasswordReq'
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: changes the password
-      tags:
-      - users
   /auth/login:
     post:
       parameters:
@@ -410,6 +394,20 @@ paths:
       tags:
       - users
   /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.User'
+      security:
+      - ApiKeyAuth: []
+      summary: get my profile
+      tags:
+      - users
+  /auth/refresh-token:
     get:
       parameters:
       - description: Body
@@ -447,6 +445,111 @@ paths:
           schema:
             $ref: '#/definitions/dto.RegisterRes'
       summary: Register new user
+      tags:
+      - users
+  /auth/resend-verfiy-code-email:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResendVerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verfiy Code for Email
+      tags:
+      - users
+  /auth/resend-verfiy-code-phone-number:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResendVerifyPhoneNumberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verfiy Code for PhoneNumber
+      tags:
+      - users
+  /auth/update-user:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateUserRes'
+      security:
+      - ApiKeyAuth: []
+      summary: changes the password
+      tags:
+      - users
+  /auth/verfiy-code-email:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verfiy Code for Email
+      tags:
+      - users
+  /auth/verfiy-code-phone-number:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyPhoneNumberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verfiy Code for PhoneNumber
       tags:
       - users
 securityDefinitions:

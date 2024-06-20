@@ -199,69 +199,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth//verfiy-code": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Verfiy Code for phone",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "_",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.VerifyRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.VerifyResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/change-password": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "changes the password",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "_",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ChangePasswordReq"
-                        }
-                    }
-                ],
-                "responses": {}
-            }
-        },
         "/auth/login": {
             "post": {
                 "produces": [
@@ -293,6 +230,30 @@ const docTemplate = `{
             }
         },
         "/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "get my profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh-token": {
             "get": {
                 "security": [
                     {
@@ -356,6 +317,181 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/resend-verfiy-code-email": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Verfiy Code for Email",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResendVerifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/resend-verfiy-code-phone-number": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Verfiy Code for PhoneNumber",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResendVerifyPhoneNumberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/update-user": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "changes the password",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUserRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verfiy-code-email": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Verfiy Code for Email",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verfiy-code-phone-number": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Verfiy Code for PhoneNumber",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyPhoneNumberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -388,21 +524,6 @@ const docTemplate = `{
                 },
                 "street": {
                     "description": "Street of the address\nexample: \"Market Street\"",
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ChangePasswordReq": {
-            "type": "object",
-            "required": [
-                "new_password",
-                "password"
-            ],
-            "properties": {
-                "new_password": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 }
             }
@@ -540,6 +661,22 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ResendVerifyEmailRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResendVerifyPhoneNumberRequest": {
+            "type": "object",
+            "properties": {
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdateAddressReq": {
             "type": "object",
             "properties": {
@@ -573,6 +710,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateUserReq": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateUserRes": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.User": {
             "type": "object",
             "properties": {
@@ -590,13 +750,24 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.VerifyRequest": {
+        "dto.VerifyEmailRequest": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "verify_code": {
+                "verify_code_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.VerifyPhoneNumberRequest": {
+            "type": "object",
+            "properties": {
+                "phone_number": {
+                    "type": "string"
+                },
+                "verify_code_phone_number": {
                     "type": "string"
                 }
             }

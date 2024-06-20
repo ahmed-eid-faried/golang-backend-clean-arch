@@ -19,10 +19,14 @@ func Routes(r *gin.RouterGroup, sqlDB dbs.IDatabase, validator validation.Valida
 	refreshAuthMiddleware := middleware.JWTRefresh()
 	authRoute := r.Group("/auth")
 	{
-		authRoute.POST("/register", userHandler.Register)
 		authRoute.POST("/login", userHandler.Login)
-		authRoute.POST("/refresh", refreshAuthMiddleware, userHandler.RefreshToken)
+		authRoute.POST("/register", userHandler.Register)
 		authRoute.GET("/me", authMiddleware, userHandler.GetMe)
-		authRoute.PUT("/change-password", authMiddleware, userHandler.ChangePassword)
+		authRoute.POST("/refresh-token", refreshAuthMiddleware, userHandler.RefreshToken)
+		authRoute.PUT("/update-user", authMiddleware, userHandler.UpdateUser)
+		authRoute.PUT("/verfiy-code-email", authMiddleware, userHandler.VerfiyCodeEmail)
+		authRoute.PUT("/verfiy-code-phone-number", authMiddleware, userHandler.VerfiyCodePhoneNumber)
+		authRoute.PUT("/resend-verfiy-code-phone-number", authMiddleware, userHandler.VerfiyCodePhoneNumberResend)
+		authRoute.PUT("/resend-verfiy-code-email", authMiddleware, userHandler.VerfiyCodeEmailResend)
 	}
 }

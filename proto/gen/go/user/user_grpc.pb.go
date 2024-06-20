@@ -19,12 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_Register_FullMethodName       = "/user.UserService/Register"
-	UserService_Login_FullMethodName          = "/user.UserService/Login"
-	UserService_GetMe_FullMethodName          = "/user.UserService/GetMe"
-	UserService_RefreshToken_FullMethodName   = "/user.UserService/RefreshToken"
-	UserService_VerifyUser_FullMethodName     = "/user.UserService/VerifyUser"
-	UserService_ChangePassword_FullMethodName = "/user.UserService/ChangePassword"
+	UserService_Register_FullMethodName                    = "/user.UserService/Register"
+	UserService_Login_FullMethodName                       = "/user.UserService/Login"
+	UserService_GetMe_FullMethodName                       = "/user.UserService/GetMe"
+	UserService_RefreshToken_FullMethodName                = "/user.UserService/RefreshToken"
+	UserService_VerifyUser_FullMethodName                  = "/user.UserService/VerifyUser"
+	UserService_UpdateUser_FullMethodName                  = "/user.UserService/UpdateUser"
+	UserService_VerfiyCodeEmail_FullMethodName             = "/user.UserService/VerfiyCodeEmail"
+	UserService_VerfiyCodePhoneNumber_FullMethodName       = "/user.UserService/VerfiyCodePhoneNumber"
+	UserService_VerfiyCodePhoneNumberResend_FullMethodName = "/user.UserService/VerfiyCodePhoneNumberResend"
+	UserService_VerfiyCodeEmailResend_FullMethodName       = "/user.UserService/VerfiyCodeEmailResend"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -36,7 +40,12 @@ type UserServiceClient interface {
 	GetMe(ctx context.Context, in *GetMeReq, opts ...grpc.CallOption) (*GetMeRes, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenReq, opts ...grpc.CallOption) (*RefreshTokenRes, error)
 	VerifyUser(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
-	ChangePassword(ctx context.Context, in *ChangePasswordReq, opts ...grpc.CallOption) (*ChangePasswordRes, error)
+	UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UpdateUserRes, error)
+	// ///////////////////////////////////////////////////
+	VerfiyCodeEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
+	VerfiyCodePhoneNumber(ctx context.Context, in *VerifyPhoneNumberRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
+	VerfiyCodePhoneNumberResend(ctx context.Context, in *ResendVerifyPhoneNumberRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
+	VerfiyCodeEmailResend(ctx context.Context, in *ResendVerifyEmailRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
 }
 
 type userServiceClient struct {
@@ -92,9 +101,45 @@ func (c *userServiceClient) VerifyUser(ctx context.Context, in *VerifyRequest, o
 	return out, nil
 }
 
-func (c *userServiceClient) ChangePassword(ctx context.Context, in *ChangePasswordReq, opts ...grpc.CallOption) (*ChangePasswordRes, error) {
-	out := new(ChangePasswordRes)
-	err := c.cc.Invoke(ctx, UserService_ChangePassword_FullMethodName, in, out, opts...)
+func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UpdateUserRes, error) {
+	out := new(UpdateUserRes)
+	err := c.cc.Invoke(ctx, UserService_UpdateUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerfiyCodeEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyResponse, error) {
+	out := new(VerifyResponse)
+	err := c.cc.Invoke(ctx, UserService_VerfiyCodeEmail_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerfiyCodePhoneNumber(ctx context.Context, in *VerifyPhoneNumberRequest, opts ...grpc.CallOption) (*VerifyResponse, error) {
+	out := new(VerifyResponse)
+	err := c.cc.Invoke(ctx, UserService_VerfiyCodePhoneNumber_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerfiyCodePhoneNumberResend(ctx context.Context, in *ResendVerifyPhoneNumberRequest, opts ...grpc.CallOption) (*VerifyResponse, error) {
+	out := new(VerifyResponse)
+	err := c.cc.Invoke(ctx, UserService_VerfiyCodePhoneNumberResend_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerfiyCodeEmailResend(ctx context.Context, in *ResendVerifyEmailRequest, opts ...grpc.CallOption) (*VerifyResponse, error) {
+	out := new(VerifyResponse)
+	err := c.cc.Invoke(ctx, UserService_VerfiyCodeEmailResend_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +155,12 @@ type UserServiceServer interface {
 	GetMe(context.Context, *GetMeReq) (*GetMeRes, error)
 	RefreshToken(context.Context, *RefreshTokenReq) (*RefreshTokenRes, error)
 	VerifyUser(context.Context, *VerifyRequest) (*VerifyResponse, error)
-	ChangePassword(context.Context, *ChangePasswordReq) (*ChangePasswordRes, error)
+	UpdateUser(context.Context, *UpdateUserReq) (*UpdateUserRes, error)
+	// ///////////////////////////////////////////////////
+	VerfiyCodeEmail(context.Context, *VerifyEmailRequest) (*VerifyResponse, error)
+	VerfiyCodePhoneNumber(context.Context, *VerifyPhoneNumberRequest) (*VerifyResponse, error)
+	VerfiyCodePhoneNumberResend(context.Context, *ResendVerifyPhoneNumberRequest) (*VerifyResponse, error)
+	VerfiyCodeEmailResend(context.Context, *ResendVerifyEmailRequest) (*VerifyResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -133,8 +183,20 @@ func (UnimplementedUserServiceServer) RefreshToken(context.Context, *RefreshToke
 func (UnimplementedUserServiceServer) VerifyUser(context.Context, *VerifyRequest) (*VerifyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyUser not implemented")
 }
-func (UnimplementedUserServiceServer) ChangePassword(context.Context, *ChangePasswordReq) (*ChangePasswordRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserReq) (*UpdateUserRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
+}
+func (UnimplementedUserServiceServer) VerfiyCodeEmail(context.Context, *VerifyEmailRequest) (*VerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerfiyCodeEmail not implemented")
+}
+func (UnimplementedUserServiceServer) VerfiyCodePhoneNumber(context.Context, *VerifyPhoneNumberRequest) (*VerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerfiyCodePhoneNumber not implemented")
+}
+func (UnimplementedUserServiceServer) VerfiyCodePhoneNumberResend(context.Context, *ResendVerifyPhoneNumberRequest) (*VerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerfiyCodePhoneNumberResend not implemented")
+}
+func (UnimplementedUserServiceServer) VerfiyCodeEmailResend(context.Context, *ResendVerifyEmailRequest) (*VerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerfiyCodeEmailResend not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -239,20 +301,92 @@ func _UserService_VerifyUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangePasswordReq)
+func _UserService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).ChangePassword(ctx, in)
+		return srv.(UserServiceServer).UpdateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_ChangePassword_FullMethodName,
+		FullMethod: UserService_UpdateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).ChangePassword(ctx, req.(*ChangePasswordReq))
+		return srv.(UserServiceServer).UpdateUser(ctx, req.(*UpdateUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerfiyCodeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerfiyCodeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerfiyCodeEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerfiyCodeEmail(ctx, req.(*VerifyEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerfiyCodePhoneNumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyPhoneNumberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerfiyCodePhoneNumber(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerfiyCodePhoneNumber_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerfiyCodePhoneNumber(ctx, req.(*VerifyPhoneNumberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerfiyCodePhoneNumberResend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResendVerifyPhoneNumberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerfiyCodePhoneNumberResend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerfiyCodePhoneNumberResend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerfiyCodePhoneNumberResend(ctx, req.(*ResendVerifyPhoneNumberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerfiyCodeEmailResend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResendVerifyEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerfiyCodeEmailResend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerfiyCodeEmailResend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerfiyCodeEmailResend(ctx, req.(*ResendVerifyEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -285,8 +419,24 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_VerifyUser_Handler,
 		},
 		{
-			MethodName: "ChangePassword",
-			Handler:    _UserService_ChangePassword_Handler,
+			MethodName: "UpdateUser",
+			Handler:    _UserService_UpdateUser_Handler,
+		},
+		{
+			MethodName: "VerfiyCodeEmail",
+			Handler:    _UserService_VerfiyCodeEmail_Handler,
+		},
+		{
+			MethodName: "VerfiyCodePhoneNumber",
+			Handler:    _UserService_VerfiyCodePhoneNumber_Handler,
+		},
+		{
+			MethodName: "VerfiyCodePhoneNumberResend",
+			Handler:    _UserService_VerfiyCodePhoneNumberResend_Handler,
+		},
+		{
+			MethodName: "VerfiyCodeEmailResend",
+			Handler:    _UserService_VerfiyCodeEmailResend_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
