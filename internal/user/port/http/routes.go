@@ -28,5 +28,8 @@ func Routes(r *gin.RouterGroup, sqlDB dbs.IDatabase, validator validation.Valida
 		authRoute.PUT("/verfiy-code-phone-number", authMiddleware, userHandler.VerfiyCodePhoneNumber)
 		authRoute.PUT("/resend-verfiy-code-phone-number", authMiddleware, userHandler.VerfiyCodePhoneNumberResend)
 		authRoute.PUT("/resend-verfiy-code-email", authMiddleware, userHandler.VerfiyCodeEmailResend)
+		authRoute.GET("/users", authMiddleware, userHandler.ListUsers)
+		authRoute.DELETE("/", authMiddleware, userHandler.DeleteUser)
+
 	}
 }

@@ -423,6 +423,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/users": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get list Users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id_user",
+                        "name": "id_user",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListUsersRes"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/verfiy-code-email": {
             "put": {
                 "security": [
@@ -488,6 +537,41 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.VerifyResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete User",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.DeleteUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.User"
                         }
                     }
                 }
@@ -570,6 +654,59 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.DeleteUserReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID of the address\nexample: \"12345\"",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.KUser": {
+            "type": "object",
+            "properties": {
+                "approve_email": {
+                    "type": "boolean"
+                },
+                "approve_phone_number": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.UserRole"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "verify_code_email": {
+                    "type": "integer"
+                },
+                "verify_code_phone_number": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.ListAddressRes": {
             "type": "object",
             "properties": {
@@ -578,6 +715,26 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.Address"
+                    }
+                },
+                "pagination": {
+                    "description": "Pagination info",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/paging.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "dto.ListUsersRes": {
+            "type": "object",
+            "properties": {
+                "Users": {
+                    "description": "List of Users\nexample: [{\"id_Users\":\"12345\",\"id_user\":\"67890\",\"name\":\"Home\",\"city\":\"San Francisco\",\"street\":\"Market Street\",\"lat\":\"37.7749\",\"long\":\"-122.4194\"}]",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.KUser"
                     }
                 },
                 "pagination": {
@@ -779,6 +936,24 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "model.UserRole": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "doctor",
+                "client"
+            ],
+            "x-enum-comments": {
+                "UserRoleAdmin": "Administrator role",
+                "UserRoleClient": "Client role",
+                "UserRoleDoctor": "Doctor role"
+            },
+            "x-enum-varnames": [
+                "UserRoleAdmin",
+                "UserRoleDoctor",
+                "UserRoleClient"
+            ]
         },
         "paging.Pagination": {
             "type": "object",

@@ -3,17 +3,21 @@ package http
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/quangdangfit/gocommon/logger"
 
 	"main/internal/user/dto"
 	"main/internal/user/service"
+	"main/pkg/config"
+	"main/pkg/redis"
 	"main/pkg/response"
 	"main/pkg/utils"
 )
 
 type UserHandler struct {
+	cache   redis.IRedis
 	service service.IUserService
 }
 
@@ -268,4 +272,100 @@ func (h *UserHandler) VerfiyCodeEmailResend(c *gin.Context) {
 		return
 	}
 	response.JSON(c, http.StatusOK, resp)
+}
+
+// ListUsers godoc
+//
+//		@Summary	Get list Users
+//		@Tags		Users
+//		@Produce	json
+//	 @Param id_user header string true "id_user"
+//	@Param		name	path	string					true	"name"
+//	@Param		page	path	string					true	"page"
+//	@Param		limit	path	string					true	"limit"
+//
+// @Success	200	{object}	dto.ListUsersRes
+// @Router		/auth/users  [get]
+func (p *UserHandler) ListUsers(c *gin.Context) {
+	Name := c.Param("name")
+	IDUser := c.Param("id_user")
+	PageStr := c.Param("page")
+	LimitStr := c.Param("limit")
+
+	Page, err1 := strconv.ParseInt(PageStr, 10, 64)
+	if err1 != nil {
+		c.JSON(http.StatusBadRequest, utils.HTTPError{Code: http.StatusBadRequest, Message: "Invalid page number"})
+		return
+	}
+
+	Limit, err2 := strconv.ParseInt(LimitStr, 10, 64)
+	if err2 != nil {
+		c.JSON(http.StatusBadRequest, utils.HTTPError{Code: http.StatusBadRequest, Message: "Invalid limit number"})
+		return
+	}
+
+	// var req dto.ListUsersReq
+	req := dto.ListUsersReq{
+		Name:   Name,
+		IDUser: IDUser,
+		Page:   Page,
+		Limit:  Limit,
+	}
+	if err := c.ShouldBindQuery(&req); err != nil {
+		logger.Error("Failed to parse request query: ", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	var res dto.ListUsersRes
+	cacheKey := c.Request.URL.RequestURI()
+	err := p.cache.Get(cacheKey, &res)
+	if err == nil {
+		response.JSON(c, http.StatusOK, res)
+		return
+	}
+
+	Users, pagination, err := p.service.ListUsers(c, req)
+	if err != nil {
+		logger.Error("Failed to get list Users: ", err)
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+
+	utils.Copy(&res.Users, &Users)
+	res.Pagination = pagination
+	response.JSON(c, http.StatusOK, res)
+	_ = p.cache.SetWithExpiration(cacheKey, res, config.UsersCachingTime)
+}
+
+// DeleteUser godoc
+//
+//	@Summary	Delete User
+//	@Tags		User
+//	@Produce	json
+//	@Security	ApiKeyAuth
+//	@Param		_	body	dto.DeleteUserReq	true	"Body"
+//	@Success	200	{object}	dto.User
+//	@Router		/auth/{id} [Delete]
+func (p *UserHandler) DeleteUser(c *gin.Context) {
+	//	@Param		id	path	string					true	"User ID"
+	// UserId := c.Param("id")
+	var req dto.DeleteUserReq
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		logger.Error("Failed to get body", err)
+		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
+		return
+	}
+
+	User, err := p.service.Delete(c, req.ID, &req)
+	if err != nil {
+		logger.Error("Failed to Delete User", err.Error())
+		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
+		return
+	}
+
+	var res dto.User
+	utils.Copy(&res, &User)
+	response.JSON(c, http.StatusOK, res)
+	_ = p.cache.RemovePattern("*User*")
 }

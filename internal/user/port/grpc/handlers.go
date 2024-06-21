@@ -3,18 +3,23 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/quangdangfit/gocommon/logger"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"main/internal/user/dto"
+	"main/internal/user/model"
 	"main/internal/user/service"
+	"main/pkg/redis"
 	"main/pkg/utils"
 	pb "main/proto/gen/go/user"
 )
 
 type UserHandler struct {
 	pb.UnimplementedUserServiceServer
-
+	cache   redis.IRedis
 	service service.IUserService
 }
 
@@ -166,4 +171,93 @@ func (h *UserHandler) VerfiyCodeEmailResend(ctx context.Context, req *pb.ResendV
 	}
 
 	return &pb.VerifyResponse{}, nil
+}
+
+// ConvertModelUserRoleToProto converts a model.UserRole to pb.UserRole
+func ConvertModelUserRoleToProto(role model.UserRole) (pb.UserRole, error) {
+	switch role {
+	case model.UserRoleClient:
+		return pb.UserRole_ROLE_USER, nil
+	case model.UserRoleDoctor:
+		return pb.UserRole_ROLE_DOCTOR, nil
+	case model.UserRoleAdmin:
+		return pb.UserRole_ROLE_ADMIN, nil
+	default:
+		return pb.UserRole_ROLE_UNKNOWN, fmt.Errorf("unknown role: %v", role)
+	}
+}
+
+func (h *UserHandler) ListUsers(ctx context.Context, req *pb.ListUsersRequest) (*pb.ListUsersResponse, error) {
+	var res dto.ListUsersRes
+	cacheKey := "users_list"
+	err := h.cache.Get(cacheKey, &res)
+	if err == nil {
+		var pbUsers []*pb.User
+		for _, addr := range res.Users {
+			protoRole, err := ConvertModelUserRoleToProto(addr.Role)
+			if err != nil {
+				logger.Error("Failed to convert user role: ", err)
+				continue // or handle the error as needed
+			}
+			var deletedAtProto *timestamppb.Timestamp
+			if addr.DeletedAt != nil {
+				deletedAtProto = timestamppb.New(*addr.DeletedAt)
+			}
+			pbUsers = append(pbUsers, &pb.User{
+				Id:                    addr.ID,
+				CreatedAt:             timestamppb.New(addr.CreatedAt),
+				UpdatedAt:             timestamppb.New(addr.UpdatedAt),
+				DeletedAt:             deletedAtProto,
+				Password:              addr.Password,
+				Role:                  protoRole,
+				Name:                  addr.Name,
+				Email:                 addr.Email,
+				PhoneNumber:           addr.PhoneNumber,
+				VerifyCodeEmail:       int32(addr.VerifyCodeEmail),
+				VerifyCodePhoneNumber: int32(addr.VerifyCodePhoneNumber),
+				ApproveEmail:          addr.ApproveEmail,
+				ApprovePhoneNumber:    addr.ApprovePhoneNumber,
+			})
+		}
+		return &pb.ListUsersResponse{Users: pbUsers}, nil
+	}
+
+	Users, pagination, err := h.service.ListUsers(ctx, dto.ListUsersReq{})
+	if err != nil {
+		logger.Error("Failed to get list of Users: ", err)
+		return nil, err
+	}
+
+	utils.Copy(&res.Users, &Users)
+	res.Pagination = pagination
+	_ = h.cache.SetWithExpiration(cacheKey, res, time.Hour) // Adjust caching time as needed
+
+	var pbUsers []*pb.User
+	for _, addr := range Users {
+		protoRole, err := ConvertModelUserRoleToProto(addr.Role)
+		if err != nil {
+			logger.Error("Failed to convert user role: ", err)
+			continue // or handle the error as needed
+		}
+		var deletedAtProto *timestamppb.Timestamp
+		if addr.DeletedAt != nil {
+			deletedAtProto = timestamppb.New(*addr.DeletedAt)
+		}
+		pbUsers = append(pbUsers, &pb.User{
+			Id:                    addr.ID,
+			CreatedAt:             timestamppb.New(addr.CreatedAt),
+			UpdatedAt:             timestamppb.New(addr.UpdatedAt),
+			DeletedAt:             deletedAtProto,
+			Password:              addr.Password,
+			Role:                  protoRole,
+			Name:                  addr.Name,
+			Email:                 addr.Email,
+			PhoneNumber:           addr.PhoneNumber,
+			VerifyCodeEmail:       int32(addr.VerifyCodeEmail),
+			VerifyCodePhoneNumber: int32(addr.VerifyCodePhoneNumber),
+			ApproveEmail:          addr.ApproveEmail,
+			ApprovePhoneNumber:    addr.ApprovePhoneNumber,
+		})
+	}
+	return &pb.ListUsersResponse{Users: pbUsers}, nil
 }

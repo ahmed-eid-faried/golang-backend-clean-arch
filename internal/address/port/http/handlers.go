@@ -82,13 +82,13 @@ func (p *AddressHandler) ListAddresses(c *gin.Context) {
 
 	Page, err1 := strconv.ParseInt(PageStr, 10, 64)
 	if err1 != nil {
-		c.JSON(http.StatusBadRequest, HTTPError{Code: http.StatusBadRequest, Message: "Invalid page number"})
+		c.JSON(http.StatusBadRequest, utils.HTTPError{Code: http.StatusBadRequest, Message: "Invalid page number"})
 		return
 	}
 
 	Limit, err2 := strconv.ParseInt(LimitStr, 10, 64)
 	if err2 != nil {
-		c.JSON(http.StatusBadRequest, HTTPError{Code: http.StatusBadRequest, Message: "Invalid limit number"})
+		c.JSON(http.StatusBadRequest, utils.HTTPError{Code: http.StatusBadRequest, Message: "Invalid limit number"})
 		return
 	}
 
@@ -218,10 +218,4 @@ func (p *AddressHandler) DeleteAddress(c *gin.Context) {
 	utils.Copy(&res, &Address)
 	response.JSON(c, http.StatusOK, res)
 	_ = p.cache.RemovePattern("*Address*")
-}
-
-// HTTPError represents an HTTP error
-type HTTPError struct {
-	Code    int    `json:"code" example:"400"`
-	Message string `json:"message" example:"status bad request"`
 }

@@ -12,6 +12,7 @@ import (
 	"main/internal/user/model"
 	"main/internal/user/repository"
 	"main/pkg/jtoken"
+	"main/pkg/paging"
 	"main/pkg/utils"
 )
 
@@ -25,8 +26,9 @@ type IUserService interface {
 	VerifyPhoneNumber(ctx context.Context, request dto.VerifyPhoneNumberRequest) (dto.VerifyResponse, error)
 	ResendVerfiyCodePhone(ctx context.Context, request dto.ResendVerifyPhoneNumberRequest) (dto.VerifyResponse, error)
 	ResendVerfiyCodeEmail(ctx context.Context, request dto.ResendVerifyEmailRequest) (dto.VerifyResponse, error)
-
+	ListUsers(ctx context.Context, request dto.ListUsersReq) ([]*model.User, *paging.Pagination, error)
 	UpdateUser(ctx context.Context, id string, req *dto.UpdateUserReq) error
+	Delete(ctx context.Context, id string, req *dto.DeleteUserReq) (*model.User, error)
 }
 
 type UserService struct {
@@ -206,4 +208,34 @@ func (s *UserService) ResendVerfiyCodeEmail(ctx context.Context, request dto.Res
 	}
 
 	return dto.VerifyResponse{Message: "Resend Verify code is successful"}, nil
+}
+
+func (p *UserService) ListUsers(ctx context.Context, req dto.ListUsersReq) ([]*model.User, *paging.Pagination, error) {
+	Userss, pagination, err := p.repo.ListUsers(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return Userss, pagination, nil
+}
+
+func (p *UserService) Delete(ctx context.Context, id string, req *dto.DeleteUserReq) (*model.User, error) {
+	if err := p.validator.ValidateStruct(req); err != nil {
+		return nil, err
+	}
+
+	User, err := p.repo.GetUserByID(ctx, id)
+	if err != nil {
+		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	utils.Copy(User, req)
+	err = p.repo.Delete(ctx, User)
+	if err != nil {
+		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	return User, nil
 }

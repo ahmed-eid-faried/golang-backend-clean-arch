@@ -6,8 +6,11 @@ import (
 
 	"gorm.io/gorm"
 
+	"main/internal/user/dto"
 	"main/internal/user/model"
+	"main/pkg/config"
 	"main/pkg/dbs"
+	"main/pkg/paging"
 )
 
 //go:generate mockery --name=IUserRepository
@@ -20,8 +23,10 @@ type IUserRepository interface {
 	FindByPhoneAndVerifyCode(ctx context.Context, PhoneNumber, verifyCode string) (*model.User, error)
 	FindByPhone(ctx context.Context, PhoneNumber string) (*model.User, error)
 	FindByEmail(ctx context.Context, PhoneNumber string) (*model.User, error)
+	ListUsers(ctx context.Context, req dto.ListUsersReq) ([]*model.User, *paging.Pagination, error)
 	UpdatePhone(ctx context.Context, user *model.User) error
 	UpdateEmail(ctx context.Context, user *model.User) error
+	Delete(ctx context.Context, User *model.User) error
 }
 
 type UserRepo struct {
@@ -123,4 +128,49 @@ func (r *UserRepo) UpdatePhone(ctx context.Context, user *model.User) error {
 	query := "UPDATE users SET approve = ? WHERE phone_number = ?"
 	err := r.db.Exec(ctx, query, user.ApprovePhoneNumber, user.PhoneNumber)
 	return err
+}
+
+func (r *UserRepo) ListUsers(ctx context.Context, req dto.ListUsersReq) ([]*model.User, *paging.Pagination, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+
+	query := make([]dbs.Query, 0)
+	if req.Name != "" {
+		query = append(query, dbs.NewQuery("name LIKE ?", "%"+req.Name+"%"))
+	}
+	// if req.Code != "" {
+	// 	query = append(query, dbs.NewQuery("code = ?", req.Code))
+	// }
+
+	// order := "created_at"
+	// if req.OrderBy != "" {
+	// 	order = req.OrderBy
+	// 	if req.OrderDesc {
+	// 		order += " DESC"
+	// 	}
+	// }
+
+	var total int64
+	if err := r.db.Count(ctx, &model.User{}, &total, dbs.WithQuery(query...)); err != nil {
+		return nil, nil, err
+	}
+
+	pagination := paging.New(req.Page, req.Limit, total)
+
+	var Users []*model.User
+	if err := r.db.Find(
+		ctx,
+		&Users,
+		dbs.WithQuery(query...),
+		dbs.WithLimit(int(pagination.Limit)),
+		dbs.WithOffset(int(pagination.Skip)),
+		// dbs.WithOrder(order),
+	); err != nil {
+		return nil, nil, err
+	}
+
+	return Users, pagination, nil
+}
+func (r *UserRepo) Delete(ctx context.Context, User *model.User) error {
+	return r.db.Delete(ctx, User)
 }

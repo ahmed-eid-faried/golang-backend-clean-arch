@@ -84,6 +84,43 @@ definitions:
           example: "67890"
         type: string
     type: object
+  dto.DeleteUserReq:
+    properties:
+      id:
+        description: |-
+          ID of the address
+          example: "12345"
+        type: string
+    type: object
+  dto.KUser:
+    properties:
+      approve_email:
+        type: boolean
+      approve_phone_number:
+        type: boolean
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
+      updated_at:
+        type: string
+      verify_code_email:
+        type: integer
+      verify_code_phone_number:
+        type: integer
+    type: object
   dto.ListAddressRes:
     properties:
       addresses:
@@ -92,6 +129,20 @@ definitions:
           example: [{"id_address":"12345","id_user":"67890","name":"Home","city":"San Francisco","street":"Market Street","lat":"37.7749","long":"-122.4194"}]
         items:
           $ref: '#/definitions/dto.Address'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/paging.Pagination'
+        description: Pagination info
+    type: object
+  dto.ListUsersRes:
+    properties:
+      Users:
+        description: |-
+          List of Users
+          example: [{"id_Users":"12345","id_user":"67890","name":"Home","city":"San Francisco","street":"Market Street","lat":"37.7749","long":"-122.4194"}]
+        items:
+          $ref: '#/definitions/dto.KUser'
         type: array
       pagination:
         allOf:
@@ -237,6 +288,20 @@ definitions:
       message:
         type: string
     type: object
+  model.UserRole:
+    enum:
+    - admin
+    - doctor
+    - client
+    type: string
+    x-enum-comments:
+      UserRoleAdmin: Administrator role
+      UserRoleClient: Client role
+      UserRoleDoctor: Doctor role
+    x-enum-varnames:
+    - UserRoleAdmin
+    - UserRoleDoctor
+    - UserRoleClient
   paging.Pagination:
     properties:
       current_page:
@@ -374,6 +439,27 @@ paths:
       summary: Update Address
       tags:
       - Address
+  /auth/{id}:
+    delete:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.User'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete User
+      tags:
+      - User
   /auth/login:
     post:
       parameters:
@@ -510,6 +596,39 @@ paths:
       summary: changes the password
       tags:
       - users
+  /auth/users:
+    get:
+      parameters:
+      - description: id_user
+        in: header
+        name: id_user
+        required: true
+        type: string
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: page
+        in: path
+        name: page
+        required: true
+        type: string
+      - description: limit
+        in: path
+        name: limit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListUsersRes'
+      summary: Get list Users
+      tags:
+      - Users
   /auth/verfiy-code-email:
     put:
       parameters:
