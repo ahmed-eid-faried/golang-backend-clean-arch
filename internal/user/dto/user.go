@@ -30,8 +30,11 @@ type User struct {
 }
 
 type RegisterReq struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,password"`
+	Password    string         `json:"password" validate:"required,password"`
+	Role        model.UserRole `json:"role"`
+	Email       string         `json:"email" validate:"required,email"`
+	Name        string         `json:"name"`
+	PhoneNumber string         `json:"phone_number"`
 }
 
 type RegisterRes struct {
@@ -39,8 +42,9 @@ type RegisterRes struct {
 }
 
 type LoginReq struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,password"`
+	Email    string         `json:"email" validate:"required,email"`
+	Password string         `json:"password" validate:"required,password"`
+	Role     model.UserRole `json:"role"`
 }
 
 type LoginRes struct {
@@ -58,8 +62,13 @@ type RefreshTokenRes struct {
 }
 
 type UpdateUserReq struct {
-	Password    string `json:"password" validate:"required,password"`
-	NewPassword string `json:"new_password" validate:"required,password"`
+	ID          string         `json:"id" gorm:"unique;not null;index;primary_key"`
+	NewPassword string         `json:"new_password" validate:"required,password"`
+	Password    string         `json:"password" validate:"required,password"`
+	Role        model.UserRole `json:"role"`
+	Email       string         `json:"email" validate:"required,email"`
+	Name        string         `json:"name"`
+	PhoneNumber string         `json:"phone_number"`
 }
 
 type UpdateUserRes struct {

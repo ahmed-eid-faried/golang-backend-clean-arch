@@ -47,9 +47,16 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginRes
 }
 
 func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterReq) (*pb.RegisterRes, error) {
+	protoRole, err := ConvertProtoToModelUserRole(req.Role)
+	if err != nil {
+		logger.Error("Failed to convert user role: ", err)
+	}
 	user, err := h.service.Register(ctx, &dto.RegisterReq{
-		Email:    req.Email,
-		Password: req.Password,
+		Email:       req.Email,
+		Password:    req.Password,
+		Name:        req.Name,
+		Role:        protoRole,
+		PhoneNumber: req.PhoneNumber,
 	})
 	if err != nil {
 		logger.Error("Failed to register ", err)
@@ -101,10 +108,19 @@ func (h *UserHandler) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*p
 	if userID == "" {
 		return nil, errors.New("unauthorized")
 	}
+	protoRole, err2 := ConvertProtoToModelUserRole(req.Role)
+	if err2 != nil {
+		logger.Error("Failed to convert user role: ", err2)
+	}
 
 	err := h.service.UpdateUser(ctx, userID, &dto.UpdateUserReq{
 		Password:    req.Password,
 		NewPassword: req.NewPassword,
+		Email:       req.Email,
+		ID:          req.Id,
+		Name:        req.Name,
+		Role:        protoRole,
+		PhoneNumber: req.PhoneNumber,
 	})
 	if err != nil {
 		logger.Error("Failed to register ", err)
@@ -184,6 +200,20 @@ func ConvertModelUserRoleToProto(role model.UserRole) (pb.UserRole, error) {
 		return pb.UserRole_ROLE_ADMIN, nil
 	default:
 		return pb.UserRole_ROLE_UNKNOWN, fmt.Errorf("unknown role: %v", role)
+	}
+}
+
+// ConvertProtoToModelUserRole converts a pb.UserRole to model.UserRole
+func ConvertProtoToModelUserRole(role pb.UserRole) (model.UserRole, error) {
+	switch role {
+	case pb.UserRole_ROLE_USER:
+		return model.UserRoleClient, nil
+	case pb.UserRole_ROLE_DOCTOR:
+		return model.UserRoleDoctor, nil
+	case pb.UserRole_ROLE_ADMIN:
+		return model.UserRoleAdmin, nil
+	default:
+		return model.UserRoleClient, fmt.Errorf("unknown role: %v", role)
 	}
 }
 

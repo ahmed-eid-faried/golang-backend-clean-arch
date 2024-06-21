@@ -134,8 +134,11 @@ message UserInfo {
 // =================================================================
 
 message RegisterReq {
-  string email    = 1;
-  string password = 2;
+  string password = 1;
+  UserRole role = 2;
+  string email = 3;
+  string name = 4;
+  string phoneNumber = 5;
 }
 
 message RegisterRes { UserInfo user = 1; }
@@ -144,6 +147,7 @@ message RegisterRes { UserInfo user = 1; }
 message LoginReq {
   string email    = 1;
   string password = 2;
+  UserRole role = 3;
 }
 
 message LoginRes {
@@ -164,9 +168,14 @@ message RefreshTokenRes { string access_token = 1; }
 // =================================================================
 
 message UpdateUserReq {
-  string password     = 1;
-  string new_password = 2;
-}
+  string id     = 1;
+  string password     = 2;
+  string new_password = 3;
+  UserRole role = 4;
+  string email = 5;
+  string name = 6;
+  string phoneNumber = 7;
+  }
 
 message UpdateUserRes {
   UserInfo user = 1;

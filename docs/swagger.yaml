@@ -155,6 +155,8 @@ definitions:
         type: string
       password:
         type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
     required:
     - email
     - password
@@ -184,8 +186,14 @@ definitions:
     properties:
       email:
         type: string
+      name:
+        type: string
       password:
         type: string
+      phone_number:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
     required:
     - email
     - password
@@ -245,11 +253,22 @@ definitions:
     type: object
   dto.UpdateUserReq:
     properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
       new_password:
         type: string
       password:
         type: string
+      phone_number:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
     required:
+    - email
     - new_password
     - password
     type: object
@@ -439,7 +458,7 @@ paths:
       summary: Update Address
       tags:
       - Address
-  /auth/{id}:
+  /auth-admin/{id}:
     delete:
       parameters:
       - description: Body
@@ -459,8 +478,104 @@ paths:
       - ApiKeyAuth: []
       summary: Delete User
       tags:
-      - User
-  /auth/login:
+      - users-admin
+  /auth-admin/create:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RegisterRes'
+      security:
+      - ApiKeyAuth: []
+      summary: Create new user
+      tags:
+      - users-admin
+  /auth-admin/login:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginRes'
+      summary: LoginAdmin
+      tags:
+      - users-admin
+  /auth-admin/update:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateUserRes'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user
+      tags:
+      - users-admin
+  /auth-admin/users:
+    get:
+      parameters:
+      - description: id_user
+        in: header
+        name: id_user
+        required: true
+        type: string
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: page
+        in: path
+        name: page
+        required: true
+        type: string
+      - description: limit
+        in: path
+        name: limit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListUsersRes'
+      security:
+      - ApiKeyAuth: []
+      summary: Get list Users
+      tags:
+      - users-admin
+  /auth-doctor/login:
     post:
       parameters:
       - description: Body
@@ -478,7 +593,106 @@ paths:
             $ref: '#/definitions/dto.LoginRes'
       summary: Login
       tags:
-      - users
+      - users-doctor
+  /auth-doctor/register:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RegisterRes'
+      summary: Register new user
+      tags:
+      - users-doctor
+  /auth-doctor/update-user:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateUserRes'
+      security:
+      - ApiKeyAuth: []
+      summary: changes the password
+      tags:
+      - users-doctor
+  /auth-patient/login:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginRes'
+      summary: Login
+      tags:
+      - users-patient
+  /auth-patient/register:
+    post:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RegisterRes'
+      summary: Register new user
+      tags:
+      - users-patient
+  /auth-patient/update-user:
+    put:
+      parameters:
+      - description: Body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateUserRes'
+      security:
+      - ApiKeyAuth: []
+      summary: changes the password
+      tags:
+      - users-patient
   /auth/me:
     get:
       produces:
@@ -512,25 +726,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: get my profile
-      tags:
-      - users
-  /auth/register:
-    post:
-      parameters:
-      - description: Body
-        in: body
-        name: _
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RegisterReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.RegisterRes'
-      summary: Register new user
       tags:
       - users
   /auth/resend-verfiy-code-email:
@@ -575,60 +770,6 @@ paths:
       summary: Verfiy Code for PhoneNumber
       tags:
       - users
-  /auth/update-user:
-    put:
-      parameters:
-      - description: Body
-        in: body
-        name: _
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateUserReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.UpdateUserRes'
-      security:
-      - ApiKeyAuth: []
-      summary: changes the password
-      tags:
-      - users
-  /auth/users:
-    get:
-      parameters:
-      - description: id_user
-        in: header
-        name: id_user
-        required: true
-        type: string
-      - description: name
-        in: path
-        name: name
-        required: true
-        type: string
-      - description: page
-        in: path
-        name: page
-        required: true
-        type: string
-      - description: limit
-        in: path
-        name: limit
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ListUsersRes'
-      summary: Get list Users
-      tags:
-      - Users
   /auth/verfiy-code-email:
     put:
       parameters:

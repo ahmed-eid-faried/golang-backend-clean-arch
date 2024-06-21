@@ -53,6 +53,8 @@ func (user *User) BeforeCreate() error {
 	// Generate verification codes
 	user.VerifyCodePhoneNumber = utils.GenerateRandomCode()
 	user.VerifyCodeEmail = utils.GenerateRandomCode()
+	user.ApproveEmail = false
+	user.ApprovePhoneNumber = false
 
 	// Send verification codes
 	err := SendVerificationCodes(user)
