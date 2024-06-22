@@ -7,6 +7,9 @@ import (
 	"github.com/quangdangfit/gocommon/logger"
 	"github.com/quangdangfit/gocommon/validation"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/oauth2"
+	googleOauth2 "google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/option"
 
 	"main/internal/user/dto"
 	"main/internal/user/model"
@@ -32,16 +35,19 @@ type IUserService interface {
 }
 
 type UserService struct {
-	validator validation.Validation
-	repo      repository.IUserRepository
+	validator   validation.Validation
+	repo        repository.IUserRepository
+	oauthConfig *oauth2.Config
 }
 
 func NewUserService(
 	validator validation.Validation,
+	oauthConfig *oauth2.Config,
 	repo repository.IUserRepository) *UserService {
 	return &UserService{
-		validator: validator,
-		repo:      repo,
+		validator:   validator,
+		repo:        repo,
+		oauthConfig: oauthConfig,
 	}
 }
 
@@ -54,6 +60,10 @@ func (s *UserService) Login(ctx context.Context, req *dto.LoginReq) (*model.User
 	if err != nil {
 		logger.Errorf("Login.GetUserByEmail fail, email: %s, error: %s", req.Email, err)
 		return nil, "", "", err
+	}
+
+	if !(req.Role == user.Role) {
+		return nil, "", "", errors.New("wrong Role")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
@@ -77,7 +87,7 @@ func (s *UserService) Register(ctx context.Context, req *dto.RegisterReq) (*mode
 
 	var user model.User
 	utils.Copy(&user, &req)
-	user.BeforeUpdate()
+	user.BeforeCreate()
 	err := s.repo.Create(ctx, &user)
 	if err != nil {
 		logger.Errorf("Register.Create fail, email: %s, error: %s", req.Email, err)
@@ -238,4 +248,28 @@ func (p *UserService) Delete(ctx context.Context, id string, req *dto.DeleteUser
 	}
 
 	return User, nil
+}
+
+func (uc *UserService) LoginWithGoogle(ctx context.Context, code string) (*model.User, error) {
+	token, err := uc.oauthConfig.Exchange(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	oauth2Service, err := googleOauth2.NewService(ctx, option.WithTokenSource(uc.oauthConfig.TokenSource(ctx, token)))
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo, err := oauth2Service.Userinfo.Get().Do()
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := uc.repo.FindOrCreateByGoogleID(ctx, userInfo.Id, userInfo.Email, userInfo.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

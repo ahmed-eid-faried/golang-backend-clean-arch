@@ -11,3 +11,5 @@ database_uri: postgres://postgres:postgres@localhost:5432/postgres
 redis_uri: localhost:6379
 redis_password:
 redis_db: 0
+google_client_id: "your-client-id"
+goole_client_secret: "your-client-secret"

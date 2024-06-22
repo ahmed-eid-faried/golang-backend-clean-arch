@@ -2,9 +2,22 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 func Copy(dest interface{}, src interface{}) {
-	data, _ := json.Marshal(src)
-	_ = json.Unmarshal(data, dest)
+	data, err := json.Marshal(src)
+	fmt.Print(data)
+
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
+	err = json.Unmarshal(data, dest)
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
 }

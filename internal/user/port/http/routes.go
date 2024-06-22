@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/quangdangfit/gocommon/validation"
+	"golang.org/x/oauth2"
 
 	"main/internal/user/repository"
 	"main/internal/user/service"
@@ -10,9 +11,9 @@ import (
 	"main/pkg/middleware"
 )
 
-func Routes(r *gin.RouterGroup, sqlDB dbs.IDatabase, validator validation.Validation) {
+func Routes(r *gin.RouterGroup, sqlDB dbs.IDatabase, validator validation.Validation, oauthConfig *oauth2.Config) {
 	userRepo := repository.NewUserRepository(sqlDB)
-	userSvc := service.NewUserService(validator, userRepo)
+	userSvc := service.NewUserService(validator, oauthConfig, userRepo)
 	userHandler := NewUserHandler(userSvc)
 
 	authMiddleware := middleware.JWTAuth()
@@ -34,7 +35,7 @@ func Routes(r *gin.RouterGroup, sqlDB dbs.IDatabase, validator validation.Valida
 	authRouteAdmin := r.Group("/auth-admin")
 	{
 		authRouteAdmin.POST("/login", userHandler.LoginAdmin)
-		authRouteAdmin.POST("/create", authMiddleware, userHandler.CreateAdmin)
+		authRouteAdmin.POST("/create", userHandler.CreateAdmin)
 		authRouteAdmin.PUT("/update", authMiddleware, userHandler.UpdateAdmin)
 		authRouteAdmin.GET("/users", authMiddleware, userHandler.ListUsers)
 		authRouteAdmin.DELETE("/", authMiddleware, userHandler.DeleteAdmin)

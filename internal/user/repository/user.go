@@ -27,6 +27,7 @@ type IUserRepository interface {
 	UpdatePhone(ctx context.Context, user *model.User) error
 	UpdateEmail(ctx context.Context, user *model.User) error
 	Delete(ctx context.Context, User *model.User) error
+	FindOrCreateByGoogleID(ctx context.Context, googleID, email, name string) (*model.User, error)
 }
 
 type UserRepo struct {
@@ -173,4 +174,22 @@ func (r *UserRepo) ListUsers(ctx context.Context, req dto.ListUsersReq) ([]*mode
 }
 func (r *UserRepo) Delete(ctx context.Context, User *model.User) error {
 	return r.db.Delete(ctx, User)
+}
+
+func (r *UserRepo) FindOrCreateByGoogleID(ctx context.Context, googleID, email, name string) (*model.User, error) {
+	var user model.User
+	err := r.db.GetDB().WithContext(ctx).Where("id = ?", googleID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		user = model.User{
+			ID:    googleID,
+			Email: email,
+			Name:  name,
+		}
+		if err := r.db.Create(ctx, &user); err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

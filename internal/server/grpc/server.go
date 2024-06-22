@@ -6,6 +6,7 @@ import (
 
 	"github.com/quangdangfit/gocommon/logger"
 	"github.com/quangdangfit/gocommon/validation"
+	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -19,14 +20,15 @@ import (
 )
 
 type Server struct {
-	engine    *grpc.Server
-	cfg       *config.Schema
-	validator validation.Validation
-	db        dbs.IDatabase
-	cache     redis.IRedis
+	engine      *grpc.Server
+	cfg         *config.Schema
+	validator   validation.Validation
+	db          dbs.IDatabase
+	cache       redis.IRedis
+	oauthConfig *oauth2.Config
 }
 
-func NewServer(validator validation.Validation, db dbs.IDatabase, cache redis.IRedis) *Server {
+func NewServer(validator validation.Validation, db dbs.IDatabase, cache redis.IRedis, oauthConfig *oauth2.Config) *Server {
 	interceptor := middleware.NewAuthInterceptor(config.AuthIgnoreMethods)
 
 	grpcServer := grpc.NewServer(
@@ -36,16 +38,17 @@ func NewServer(validator validation.Validation, db dbs.IDatabase, cache redis.IR
 	)
 
 	return &Server{
-		engine:    grpcServer,
-		cfg:       config.GetConfig(),
-		validator: validator,
-		db:        db,
-		cache:     cache,
+		engine:      grpcServer,
+		cfg:         config.GetConfig(),
+		validator:   validator,
+		db:          db,
+		cache:       cache,
+		oauthConfig: oauthConfig,
 	}
 }
 
 func (s Server) Run() error {
-	userGRPC.RegisterHandlers(s.engine, s.db, s.validator)
+	userGRPC.RegisterHandlers(s.engine, s.db, s.validator, s.oauthConfig)
 	addressGRPC.RegisterHandlers(s.engine, s.db, s.validator, s.cache)
 	// cartGRPC.RegisterHandlers(s.engine, s.db, s.validator)
 

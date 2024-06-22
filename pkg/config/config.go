@@ -25,14 +25,16 @@ var AuthIgnoreMethods = []string{
 }
 
 type Schema struct {
-	Environment   string `env:"environment"`
-	HttpPort      int    `env:"http_port"`
-	GrpcPort      int    `env:"grpc_port"`
-	AuthSecret    string `env:"auth_secret"`
-	DatabaseURI   string `env:"database_uri"`
-	RedisURI      string `env:"redis_uri"`
-	RedisPassword string `env:"redis_password"`
-	RedisDB       int    `env:"redis_db"`
+	Environment          string `env:"environment"`
+	HttpPort             int    `env:"http_port"`
+	GrpcPort             int    `env:"grpc_port"`
+	AuthSecret           string `env:"auth_secret"`
+	DatabaseURI          string `env:"database_uri"`
+	RedisURI             string `env:"redis_uri"`
+	RedisPassword        string `env:"redis_password"`
+	RedisDB              int    `env:"redis_db"`
+	GOOGLE_CLIENT_ID     string `env:"google_client_id"`
+	GOOGLE_CLIENT_SECRET string `env:"goole_client_secret"`
 }
 
 var (

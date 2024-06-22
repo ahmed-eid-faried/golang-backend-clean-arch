@@ -92,6 +92,49 @@ definitions:
           example: "12345"
         type: string
     type: object
+  dto.KLoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.KRegisterReq:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.KUpdateUserReq:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      new_password:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - email
+    - new_password
+    - password
+    type: object
   dto.KUser:
     properties:
       approve_email:
@@ -583,7 +626,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.LoginReq'
+          $ref: '#/definitions/dto.KLoginReq'
       produces:
       - application/json
       responses:
@@ -602,7 +645,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.RegisterReq'
+          $ref: '#/definitions/dto.KRegisterReq'
       produces:
       - application/json
       responses:
@@ -621,7 +664,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateUserReq'
+          $ref: '#/definitions/dto.KUpdateUserReq'
       produces:
       - application/json
       responses:
@@ -642,7 +685,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.LoginReq'
+          $ref: '#/definitions/dto.KLoginReq'
       produces:
       - application/json
       responses:
@@ -661,7 +704,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.RegisterReq'
+          $ref: '#/definitions/dto.KRegisterReq'
       produces:
       - application/json
       responses:
@@ -680,7 +723,7 @@ paths:
         name: _
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateUserReq'
+          $ref: '#/definitions/dto.KUpdateUserReq'
       produces:
       - application/json
       responses:

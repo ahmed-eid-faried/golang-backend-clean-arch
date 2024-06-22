@@ -7,6 +7,10 @@ import (
 
 	"github.com/quangdangfit/gocommon/logger"
 	"github.com/quangdangfit/gocommon/validation"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+
+	// "golang.org/x/oauth2/google"
 
 	// orderModel "main/internal/order/model"
 	// productModel "main/internal/product/model"
@@ -65,6 +69,15 @@ func main() {
 		os.Exit(1)
 	}
 	//*********************************************
+	oauthConfig := &oauth2.Config{
+		ClientID:     cfg.GOOGLE_CLIENT_ID,
+		ClientSecret: cfg.GOOGLE_CLIENT_SECRET,
+		RedirectURL:  "http://localhost:8888/auth/google/callback",
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
+		Endpoint:     google.Endpoint,
+	}
+
+	//*********************************************
 
 	err = db.AutoMigrate(&userModel.User{}, &addressModel.Address{})
 	if err != nil {
@@ -80,13 +93,13 @@ func main() {
 	})
 
 	go func() {
-		httpSvr := httpServer.NewServer(validator, db, cache)
+		httpSvr := httpServer.NewServer(validator, db, cache, oauthConfig)
 		if err = httpSvr.Run(); err != nil {
 			logger.Fatal(err)
 		}
 	}()
 
-	grpcSvr := grpcServer.NewServer(validator, db, cache)
+	grpcSvr := grpcServer.NewServer(validator, db, cache, oauthConfig)
 	if err = grpcSvr.Run(); err != nil {
 		logger.Fatal(err)
 	}

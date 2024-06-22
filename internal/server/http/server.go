@@ -10,6 +10,7 @@ import (
 	"github.com/quangdangfit/gocommon/validation"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"golang.org/x/oauth2"
 
 	_ "main/docs"
 	// orderHttp "main/internal/order/port/http"
@@ -23,20 +24,22 @@ import (
 )
 
 type Server struct {
-	engine    *gin.Engine
-	cfg       *config.Schema
-	validator validation.Validation
-	db        dbs.IDatabase
-	cache     redis.IRedis
+	engine      *gin.Engine
+	cfg         *config.Schema
+	validator   validation.Validation
+	db          dbs.IDatabase
+	cache       redis.IRedis
+	oauthConfig *oauth2.Config
 }
 
-func NewServer(validator validation.Validation, db dbs.IDatabase, cache redis.IRedis) *Server {
+func NewServer(validator validation.Validation, db dbs.IDatabase, cache redis.IRedis, oauthConfig *oauth2.Config) *Server {
 	return &Server{
-		engine:    gin.Default(),
-		cfg:       config.GetConfig(),
-		validator: validator,
-		db:        db,
-		cache:     cache,
+		engine:      gin.Default(),
+		cfg:         config.GetConfig(),
+		validator:   validator,
+		db:          db,
+		cache:       cache,
+		oauthConfig: oauthConfig,
 	}
 }
 
@@ -76,7 +79,7 @@ func (s Server) GetEngine() *gin.Engine {
 
 func (s Server) MapRoutes() error {
 	v1 := s.engine.Group("/api/v1")
-	userHttp.Routes(v1, s.db, s.validator)
+	userHttp.Routes(v1, s.db, s.validator, s.oauthConfig)
 	addressHttp.Routes(v1, s.db, s.validator, s.cache)
 	// productHttp.Routes(v1, s.db, s.validator, s.cache)
 	// orderHttp.Routes(v1, s.db, s.validator)
